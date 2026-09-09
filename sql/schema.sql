@@ -134,13 +134,14 @@ create table if not exists public.sync_sources (
 alter table public.sync_sources enable row level security;
 create policy "admin sync sources" on public.sync_sources for all to authenticated using (true) with check (true);
 
--- V4.3 profile social media fields
+-- V4.3 profile social media and media url fields
 alter table public.school_profile add column if not exists instagram_url text;
 alter table public.school_profile add column if not exists facebook_url text;
 alter table public.school_profile add column if not exists youtube_url text;
 alter table public.school_profile add column if not exists tiktok_url text;
 alter table public.school_profile add column if not exists whatsapp_url text;
 alter table public.school_profile add column if not exists profile_image_url text;
+alter table public.school_profile add column if not exists hero_image_url text;
 
 -- V4.4 media candidates table for review workflow
 create table if not exists public.media_candidates (
@@ -160,5 +161,29 @@ create table if not exists public.media_candidates (
 
 alter table public.media_candidates enable row level security;
 create policy "admin media candidates" on public.media_candidates for all to authenticated using (true) with check (true);
-create policy "public read approved media candidates" on public.media_candidates for select using (status = 'approved' or auth.role() = 'authenticated');
+
+-- V4.5 content candidates table (Source B: Internet Content Sync)
+-- DO NOT mix with sync_staging (sync_staging is exclusively for school profile fields).
+-- Public frontend MUST NOT access content_candidates.
+create table if not exists public.content_candidates (
+  id uuid primary key default gen_random_uuid(),
+  source_name text not null,
+  source_url text,
+  original_title text not null,
+  original_content text,
+  original_excerpt text,
+  original_image_url text,
+  published_date timestamptz,
+  detected_at timestamptz not null default now(),
+  confidence numeric(5,2) not null default 85.00,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  ai_draft_title text,
+  ai_draft_content text,
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz
+);
+
+alter table public.content_candidates enable row level security;
+create policy "admin content candidates" on public.content_candidates for all to authenticated using (true) with check (true);
+
 

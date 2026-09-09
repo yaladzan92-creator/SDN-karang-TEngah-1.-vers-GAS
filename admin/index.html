@@ -15,13 +15,13 @@
 <div id="appView" class="app-shell hidden">
 <aside><div class="side-brand"><div class="brand-mark">KT1</div><b>SDN Karang Tengah 1</b></div>
 <nav>
-<a href="#dashboard">📊 Dashboard</a><a href="#sekolah">🏫 Data Sekolah</a><a href="#media-candidates">🖼️ Media Kandidat</a><a href="#rombel">🏷️ Rombongan Belajar</a><a href="#eskul">🏆 Ekstrakurikuler</a><a href="#kegiatan-eskul">🎯 Kegiatan Eskul</a><a href="#program">📚 Program</a><a href="#berita">📰 Berita</a><a href="#pengumuman">📢 Pengumuman</a><a href="#prestasi">🥇 Prestasi</a><a href="#galeri">🖼️ Galeri</a><a href="#dokumen">📄 Dokumen</a><a href="#jadwal">📅 Jadwal</a><a href="#sync">🔄 Sinkronisasi</a><a href="#settings">⚙️ Pengaturan</a>
+<a href="#dashboard">📊 Dashboard</a><a href="#sekolah">🏫 Data Sekolah</a><a href="#content-candidates">📰 Kandidat Berita Internet</a><a href="#media-candidates">🖼️ Media Kandidat</a><a href="#rombel">🏷️ Rombongan Belajar</a><a href="#eskul">🏆 Ekstrakurikuler</a><a href="#kegiatan-eskul">🎯 Kegiatan Eskul</a><a href="#program">📚 Program</a><a href="#berita">📰 Berita</a><a href="#pengumuman">📢 Pengumuman</a><a href="#prestasi">🥇 Prestasi</a><a href="#galeri">🖼️ Galeri</a><a href="#dokumen">📄 Dokumen</a><a href="#jadwal">📅 Jadwal</a><a href="#sync">🔄 Sinkronisasi</a><a href="#settings">⚙️ Pengaturan</a>
 </nav><button id="logoutBtn" class="logout">Keluar</button></aside>
 
 <main class="admin-main">
 <header class="topbar"><div><span class="eyebrow">ADMIN PANEL</span><h1>Dashboard Pengelolaan Sekolah</h1></div><a href="../" class="view-site">Lihat Website ↗</a></header>
 
-<section id="dashboard" class="panel"><div class="kpis"><div><span>Peserta Didik</span><strong id="kpiStudents">—</strong><small>Data profil aktif</small></div><div><span>Rombel</span><strong id="kpiRombel">0</strong><small>Dikelola admin</small></div><div><span>Ekstrakurikuler</span><strong id="kpiEskul">0</strong><small>Dikelola admin</small></div><div><span>Data Staging</span><strong id="kpiStaging">0</strong><small>Menunggu verifikasi</small></div></div></section>
+<section id="dashboard" class="panel"><div class="kpis"><div><span>Peserta Didik</span><strong id="kpiStudents">—</strong><small>Data profil aktif</small></div><div><span>Rombel</span><strong id="kpiRombel">0</strong><small>Dikelola admin</small></div><div><span>Ekstrakurikuler</span><strong id="kpiEskul">0</strong><small>Dikelola admin</small></div><div><span>Kandidat Berita</span><strong id="kpiNewsCandidates">0</strong><small>Inbox Internet</small></div></div></section>
 
 <section id="sekolah" class="panel">
 <div class="panel-head"><div><span class="eyebrow">DATA SEKOLAH</span><h2>Identitas & Profil Sekolah</h2></div><button class="primary" id="saveProfileBtn">Simpan</button></div>
@@ -40,8 +40,20 @@
 <label>Misi — satu baris per poin<textarea id="schoolMission"></textarea></label><label>Subjudul Hero<textarea id="schoolHeroSubtitle"></textarea></label>
 <label>Judul SPMB<input id="schoolSpmbTitle"></label><label>URL SPMB<input id="schoolSpmbUrl"></label>
 <label>Deskripsi SPMB<textarea id="schoolSpmbDescription"></textarea></label>
-<div class="logo-manager full"><div><b>Logo Sekolah</b><p class="hint">Logo dipakai pada header, hero, profil, dan kontak website publik.</p><img id="schoolLogoPreview" src="../assets/brand-kt1.svg" alt="Logo sekolah" onerror="this.onerror=null;this.src='../assets/brand-kt1.svg'"></div><div><label>Upload Logo Baru<input id="schoolLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label><button type="button" class="secondary" id="uploadLogoBtn">Upload & Gunakan Logo</button><small>Disimpan ke Supabase Storage bucket school-media.</small></div></div><div class="logo-manager full"><div><b>Foto Hero / Gedung Sekolah</b><p class="hint">Foto ini menjadi gambar besar di halaman beranda seperti desain Professional V2.</p><img id="schoolHeroPreview" src="../assets/school-hero-placeholder.svg" alt="Foto SDN Karang Tengah 1" onerror="this.onerror=null;this.src='../assets/school-hero-placeholder.svg'"></div><div><label>Upload Foto Hero Baru<input id="schoolHeroFile" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="secondary" id="uploadHeroBtn">Upload & Gunakan Foto Hero</button><small>Admin dapat mengganti foto kapan saja tanpa mengubah kode.</small></div></div>
+
+<div class="logo-manager full"><div><b>Logo Resmi Sekolah</b><p class="hint">Hanya mengubah logo_url (dipakai pada header, identitas, dan footer).</p><img id="schoolLogoPreview" src="../assets/brand-kt1.svg" alt="Logo sekolah" onerror="this.onerror=null;this.src='../assets/brand-kt1.svg'"></div><div><label>Upload Logo Baru<input id="schoolLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label><button type="button" class="secondary" id="uploadLogoBtn">Upload &amp; Gunakan Logo</button><small>Disimpan ke Supabase Storage.</small></div></div>
+
+<div class="logo-manager full"><div><b>Foto Profil / Lingkungan Sekolah</b><p class="hint">Hanya mengubah profile_image_url (dipakai pada seksi Profil Singkat).</p><img id="schoolProfilePreview" src="../assets/school-profile-placeholder.svg" alt="Foto Profil Sekolah" onerror="this.onerror=null;this.src='../assets/school-profile-placeholder.svg'"></div><div><label>Upload Foto Profil Baru<input id="schoolProfileFile" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="secondary" id="uploadProfileBtn">Upload &amp; Gunakan Foto Profil</button><small>Disimpan ke Supabase Storage.</small></div></div>
+
+<div class="logo-manager full"><div><b>Foto Hero / Gedung Utama</b><p class="hint">Hanya mengubah hero_image_url (dipakai sebagai gambar besar di halaman beranda).</p><img id="schoolHeroPreview" src="../assets/school-hero-placeholder.svg" alt="Foto SDN Karang Tengah 1" onerror="this.onerror=null;this.src='../assets/school-hero-placeholder.svg'"></div><div><label>Upload Foto Hero Baru<input id="schoolHeroFile" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="secondary" id="uploadHeroBtn">Upload &amp; Gunakan Foto Hero</button><small>Disimpan ke Supabase Storage.</small></div></div>
 </div><div id="profileMsg" class="msg"></div></section>
+
+<section id="content-candidates" class="panel">
+<div class="panel-head"><div><span class="eyebrow">SUMBER B (INTERNET SYNC)</span><h2>Kandidat Berita Internet</h2></div><button class="primary" id="syncContentCandidatesBtn">🔄 Sinkronisasi Berita Internet</button></div>
+<p class="hint">Alur kurasi berita internet: Internet &rarr; content_candidates &rarr; Review Admin &rarr; [✨ Optimalkan dengan AI] &rarr; Admin Review/Edit di Editor Berita &rarr; Simpan &amp; Publish ke Website Publik. Kandidat itu sendiri <b>TIDAK PERNAH</b> tampil di website publik sebelum disetujui.</p>
+<div id="contentCandidateMsg" class="msg"></div>
+<div id="contentCandidateList" class="media-candidate-grid"></div>
+</section>
 
 <section id="media-candidates" class="panel">
 <div class="panel-head"><div><span class="eyebrow">KURASI MEDIA</span><h2>Media Kandidat (Review & Simpan ke Storage)</h2></div><button class="primary" id="openAddCandidateModalBtn">+ Daftarkan Kandidat Media</button></div>
