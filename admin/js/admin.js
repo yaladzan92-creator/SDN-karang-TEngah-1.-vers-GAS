@@ -1,7 +1,8 @@
 let c = null;
 const $=id=>document.getElementById(id), getClient=()=>{ c=(window.SDN||window.SDN11)?.client; return c; }, getBucket=()=>(window.SDN||window.SDN11)?.bucket||"school-media";
 const esc=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[ch]));
-let cache={rombel:[],eskul:[],activity:[],program:[],news:[],announcement:[],achievement:[],gallery:[],document:[],schedule:[],staging:[],sources:[]},profile={};
+let cache={rombel:[],eskul:[],activity:[],program:[],news:[],announcement:[],achievement:[],gallery:[],document:[],schedule:[],staging:[],sources:[],media_candidates:[]},profile={};
+
 const defs={
 rombel:{table:"class_groups",title:"Rombel",fields:[["name","Nama Rombel","text"],["grade","Tingkat","number"],["academic_year","Tahun Ajaran","text"],["semester","Semester","text"],["student_count","Jumlah Siswa","number"],["male_count","Laki-laki","number"],["female_count","Perempuan","number"],["homeroom_teacher","Wali Kelas","text"],["room","Ruang","text"],["source_note","Sumber Data","text"],["published","Tampilkan","checkbox"]]},
 eskul:{table:"extracurriculars",title:"Ekstrakurikuler",fields:[["name","Nama Eskul","text"],["day","Hari","text"],["start_time","Jam Mulai","time"],["end_time","Jam Selesai","time"],["location","Lokasi","text"],["coach","Pembina","text"],["trainer","Pelatih","text"],["participant_grades","Kelas Peserta","text"],["capacity","Kuota","number"],["description","Deskripsi","textarea"],["image_url","URL Foto","text"],["image_file","Upload Foto","file"],["active","Aktif","checkbox"]]},
@@ -36,7 +37,7 @@ async function loadAll(){
   const c=getClient();
   if(!c)return;
   try{
-    const [pr,r,e,a,pg,n,an,ac,g,d,sc,st,src]=await Promise.all([
+    const [pr,r,e,a,pg,n,an,ac,g,d,sc,st,src,mc]=await Promise.all([
       c.from("school_profile").select("*").eq("id",1).maybeSingle(),
       c.from("class_groups").select("*").order("grade",{ascending:true}),
       c.from("extracurriculars").select("*").order("name",{ascending:true}),
@@ -49,7 +50,8 @@ async function loadAll(){
       c.from("documents").select("*").order("created_at",{ascending:false}),
       c.from("school_schedules").select("*").order("sort_order",{ascending:true}),
       c.from("sync_staging").select("*").order("created_at",{ascending:false}),
-      c.from("sync_sources").select("*").order("name",{ascending:true})
+      c.from("sync_sources").select("*").order("name",{ascending:true}),
+      c.from("media_candidates").select("*").order("created_at",{ascending:false}).catch?.(()=>({data:[]}))||c.from("media_candidates").select("*").order("created_at",{ascending:false})
     ]);
     if(pr?.data)profile=pr.data;
     cache.rombel=r?.data||[];
@@ -64,6 +66,20 @@ async function loadAll(){
     cache.schedule=sc?.data||[];
     cache.staging=st?.data||[];
     cache.sources=src?.data||[];
+    cache.media_candidates=(mc?.data&&mc.data.length)?mc.data:[
+      {
+        id: "kemendikdasmen-hero-1",
+        source_name: "Kemendikdasmen SekolahKita",
+        source_url: "https://sekolah.data.kemdikbud.go.id/index.php/chome/profil/f1350b91-2bf5-e011-97b7-af100d040a45",
+        image_url: "https://file.data.kemendikdasmen.go.id/sekolahkita/20/2060/20607151-13.jpg",
+        title: "Gedung & Lapangan SDN Karang Tengah 1",
+        description: "Dokumentasi gedung dan pekarangan sekolah dari pangkalan data resmi Kemendikdasmen.",
+        media_type: "hero",
+        confidence: 95.0,
+        status: "pending",
+        created_at: new Date().toISOString()
+      }
+    ];
     fillProfile();
     renderAll();
   }catch(err){
@@ -73,8 +89,9 @@ async function loadAll(){
 $("saveProfileBtn").onclick=async()=>{const c=getClient();const payload={id:1,name:$("schoolName").value,npsn:$("schoolNpsn").value,status:$("schoolStatus").value,level:$("schoolLevel").value,accreditation:$("schoolAccreditation").value,principal:$("schoolPrincipal").value,students:+$("schoolStudents").value||null,staff:+$("schoolStaff").value||null,address:$("schoolAddress").value,city:$("schoolCity").value,phone:$("schoolPhone").value,email:$("schoolEmail").value,instagram_url:$("schoolInstagram")?.value||null,facebook_url:$("schoolFacebook")?.value||null,youtube_url:$("schoolYoutube")?.value||null,tiktok_url:$("schoolTiktok")?.value||null,whatsapp_url:$("schoolWhatsapp")?.value||null,maps_url:$("schoolMaps").value,profile_title:$("schoolProfileTitle").value,description:$("schoolDescription").value,vision:$("schoolVision").value,mission:$("schoolMission").value.split("\n").map(x=>x.trim()).filter(Boolean),hero_subtitle:$("schoolHeroSubtitle").value,spmb_title:$("schoolSpmbTitle").value,spmb_url:$("schoolSpmbUrl").value,spmb_description:$("schoolSpmbDescription").value,logo_url:profile.logo_url||null,hero_image_url:profile.hero_image_url||null,updated_at:new Date().toISOString()};const {error}=await c.from("school_profile").upsert(payload);$("profileMsg").textContent=error?error.message:"Profil berhasil disimpan.";if(!error){profile=payload;renderAll()}}
 function renderAll(){
  $("kpiStudents").textContent=profile.students??"—";$("kpiRombel").textContent=cache.rombel.length;$("kpiEskul").textContent=cache.eskul.length;$("kpiStaging").textContent=cache.staging.filter(x=>x.status==="pending").length;
- for(const k of Object.keys(defs))renderTable(k);renderStaging();renderSources()
+ for(const k of Object.keys(defs))renderTable(k);renderStaging();renderSources();renderMediaCandidates();
 }
+
 function renderTable(type){const d=defs[type],box=$(type+"Editor");const fields=d.fields.filter(f=>f[2]!=="file").slice(0,5);if(!cache[type].length){box.innerHTML='<p class="empty">Belum ada data. Klik “+ Tambah”.</p>';return}box.innerHTML=`<div class="table-wrap"><table class="editor-table"><thead><tr>${fields.map(f=>`<th>${esc(f[1])}</th>`).join("")}<th>Aksi</th></tr></thead><tbody>${cache[type].map(x=>`<tr>${fields.map(f=>`<td>${esc(displayValue(f,x[f[0]]))}</td>`).join("")}<td><div class="editor-actions"><button class="secondary" onclick="openEditor('${type}','${x.id}')">Edit</button><button class="danger" onclick="deleteItem('${type}','${x.id}')">Hapus</button></div></td></tr>`).join("")}</tbody></table></div>`}
 function displayValue(f,v){if(f[2]==="checkbox")return v?"Ya":"Tidak";if(f[2]==="eskul"){const x=cache.eskul.find(e=>e.id===v);return x?.name||"-"}return v??"-"}
 document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openEditor(b.dataset.add,null))
@@ -103,4 +120,188 @@ function renderStaging(){const list=$("stagingList");if(!list)return;const items
 function valueText(v){if(v===null||v===undefined)return "-";if(typeof v==="string")return v;try{return JSON.stringify(v)}catch{return String(v)}}
 window.applyCandidate=async id=>{const x=cache.staging.find(i=>i.id===id);if(!x||!SYNC_PROFILE_FIELDS.has(x.field_name)){alert("Field ini tidak diizinkan untuk diterapkan otomatis.");return}const value=x.candidate_value;const {error}=await c.from("school_profile").update({[x.field_name]:value,updated_at:new Date().toISOString()}).eq("id",1);if(error){alert(error.message);return}await c.from("sync_staging").update({status:"accepted",reviewed_at:new Date().toISOString()}).eq("id",id);await loadAll()};
 window.rejectCandidate=async id=>{const {error}=await c.from("sync_staging").update({status:"rejected",reviewed_at:new Date().toISOString()}).eq("id",id);if(error)alert(error.message);else await loadAll()};
+
+function renderMediaCandidates(){
+  const list = $("mediaCandidateList");
+  if(!list) return;
+  const items = cache.media_candidates || [];
+  if(!items.length){
+    list.innerHTML = '<p class="empty">Belum ada media kandidat. Klik “+ Daftarkan Kandidat Media” untuk menambahkan sumber baru.</p>';
+    return;
+  }
+  list.innerHTML = items.map(x => {
+    const isPending = (x.status === "pending" || !x.status);
+    const isApproved = x.status === "approved";
+    const proxyUrl = `/api/media-proxy?url=${encodeURIComponent(x.image_url)}`;
+    const displayImg = isApproved && x.storage_url ? x.storage_url : proxyUrl;
+    return `
+      <div class="media-candidate-card" id="mc-card-${x.id}">
+        <img class="thumb" src="${esc(displayImg)}" alt="${esc(x.title||'Kandidat Media')}" loading="lazy" onerror="this.onerror=null;this.src='${esc(x.image_url)}'"/>
+        <div class="meta">
+          <div class="tags">
+            <span class="media-badge">${esc(x.media_type||"gallery")}</span>
+            <span class="media-badge confidence">${x.confidence||85}% confidence</span>
+            <span class="media-badge status-${esc(x.status||'pending')}">${esc(x.status||'pending')}</span>
+          </div>
+          <h4>${esc(x.title||"Dokumentasi Sekolah")}</h4>
+          <p>${esc(x.description||"Kandidat foto sekolah dari pangkalan data resmi.")}</p>
+          <small class="hint">Sumber: <a href="${esc(x.source_url||'#')}" target="_blank" rel="noopener">${esc(x.source_name||"Internet")}</a></small>
+          <div class="editor-actions" style="margin-top:12px;">
+            ${isPending ? `
+              <button class="primary" onclick="approveCandidate('${x.id}')">Approve &amp; Simpan ke Storage</button>
+              <button class="danger" onclick="rejectCandidateMedia('${x.id}')">Tolak</button>
+            ` : isApproved ? `
+              <span style="font-size:12px;color:#1e7e4a;font-weight:700;">✓ Disimpan di Storage:</span>
+              <a href="${esc(x.storage_url||x.image_url)}" target="_blank" style="font-size:11px;color:#0d6efd;word-break:break-all;">${esc((x.storage_url||x.image_url).slice(0,40))}...</a>
+            ` : `
+              <span style="font-size:12px;color:#b91c1c;font-weight:700;">✗ Ditolak</span>
+            `}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.approveCandidate = async (id) => {
+  const item = cache.media_candidates.find(x => String(x.id) === String(id));
+  if(!item) return;
+  const msgEl = $("candidateActionMsg");
+  if(msgEl) msgEl.textContent = "Mengunduh media server-side dan menyimpan ke Supabase Storage...";
+
+  try {
+    const session = (await c?.auth?.getSession?.())?.data?.session;
+    const token = session?.access_token || "";
+
+    const resp = await fetch("/api/media/approve", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token ? `Bearer ${token}` : ""
+      },
+      body: JSON.stringify({
+        id: item.id,
+        image_url: item.image_url,
+        media_type: item.media_type,
+        title: item.title,
+        description: item.description
+      })
+    });
+
+    const res = await resp.json();
+    if(!resp.ok || !res.success) throw new Error(res.error || "Gagal memproses kandidat");
+
+    const storageUrl = res.storage_url;
+    item.storage_url = storageUrl;
+    item.status = "approved";
+    item.reviewed_at = new Date().toISOString();
+
+    if(c) {
+      if(item.media_type === "hero") {
+        await c.from("school_profile").update({ hero_image_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
+        profile.hero_image_url = storageUrl;
+        if($("schoolHeroPreview")) $("schoolHeroPreview").src = storageUrl;
+      } else if(item.media_type === "profile" || item.media_type === "branding") {
+        await c.from("school_profile").update({ logo_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
+        profile.logo_url = storageUrl;
+        if($("schoolLogoPreview")) $("schoolLogoPreview").src = storageUrl;
+      } else if(item.media_type === "gallery") {
+        await c.from("gallery").insert({ title: item.title || "Dokumentasi Sekolah", image_url: storageUrl, published: true });
+      } else if(item.media_type === "news") {
+        await c.from("news").insert({ title: item.title || "Warta Sekolah", excerpt: item.description || "", content: item.description || "", image_url: storageUrl, published: true, published_at: new Date().toISOString() });
+      }
+
+      try {
+        await c.from("media_candidates").update({ status: "approved", reviewed_at: item.reviewed_at }).eq("id", item.id);
+      } catch(dbErr) {
+        console.warn("Update media_candidates db note:", dbErr);
+      }
+    }
+
+    if(msgEl) {
+      msgEl.innerHTML = `<span style="color:#10b981;font-weight:bold;">✓ Media disetujui &amp; disimpan ke Supabase Storage: <code>${esc(storageUrl)}</code></span>`;
+    }
+    renderMediaCandidates();
+    fillProfile();
+  } catch(err) {
+    if(msgEl) msgEl.textContent = "Gagal approve media: " + err.message;
+  }
+};
+
+window.rejectCandidateMedia = async (id) => {
+  const item = cache.media_candidates.find(x => String(x.id) === String(id));
+  if(!item) return;
+  if(!confirm("Tolak kandidat media ini?")) return;
+
+  item.status = "rejected";
+  item.reviewed_at = new Date().toISOString();
+
+  if(c) {
+    try {
+      await c.from("media_candidates").update({ status: "rejected", reviewed_at: item.reviewed_at }).eq("id", item.id);
+    } catch(dbErr) {
+      console.warn("Reject note:", dbErr);
+    }
+  }
+
+  const msgEl = $("candidateActionMsg");
+  if(msgEl) msgEl.textContent = "Kandidat media ditolak dan tidak akan ditampilkan ke publik.";
+  renderMediaCandidates();
+};
+
+if($("openAddCandidateModalBtn")){
+  $("openAddCandidateModalBtn").onclick = () => {
+    $("modalTitle").textContent = "Daftarkan Kandidat Media";
+    $("modalForm").innerHTML = `
+      <label>Nama Sumber<input id="newCandSource" placeholder="Misal: Kemendikdasmen, Arsip Sekolah" required></label>
+      <label>Kategori Media
+        <select id="newCandType">
+          <option value="hero">Foto Hero / Beranda</option>
+          <option value="gallery" selected>Galeri Dokumentasi</option>
+          <option value="profile">Logo / Profil</option>
+          <option value="news">Warta / Berita</option>
+          <option value="extracurricular">Ekstrakurikuler</option>
+          <option value="achievement">Prestasi</option>
+        </select>
+      </label>
+      <label class="full">URL Gambar Asli<input id="newCandImageUrl" type="url" placeholder="https://..." required></label>
+      <label class="full">URL Halaman Sumber<input id="newCandSourceUrl" type="url" placeholder="https://..."></label>
+      <label class="full">Judul Foto<input id="newCandTitle" placeholder="Deskripsi singkat gambar"></label>
+      <label class="full">Keterangan Tambahan<textarea id="newCandDesc" placeholder="Keterangan konteks foto"></textarea></label>
+      <div class="form-actions">
+        <button type="button" class="secondary" onclick="closeModal()">Batal</button>
+        <button class="primary" type="submit">Daftarkan untuk Direview</button>
+      </div>
+    `;
+    $("modal").classList.remove("hidden");
+    $("modalForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const cand = {
+        id: "cand-" + Date.now(),
+        source_name: $("newCandSource").value.trim(),
+        source_url: $("newCandSourceUrl").value.trim(),
+        image_url: $("newCandImageUrl").value.trim(),
+        title: $("newCandTitle").value.trim() || "Kandidat Foto",
+        description: $("newCandDesc").value.trim(),
+        media_type: $("newCandType").value,
+        confidence: 85,
+        status: "pending",
+        created_at: new Date().toISOString()
+      };
+
+      if(c) {
+        try {
+          await c.from("media_candidates").insert([cand]);
+        } catch(err) {
+          console.warn("DB insert error:", err);
+        }
+      }
+
+      cache.media_candidates.unshift(cand);
+      closeModal();
+      renderMediaCandidates();
+    };
+  };
+}
+
 authCheck();

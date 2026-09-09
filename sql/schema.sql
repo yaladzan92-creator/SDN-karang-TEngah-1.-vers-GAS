@@ -140,3 +140,23 @@ alter table public.school_profile add column if not exists facebook_url text;
 alter table public.school_profile add column if not exists youtube_url text;
 alter table public.school_profile add column if not exists tiktok_url text;
 alter table public.school_profile add column if not exists whatsapp_url text;
+
+-- V4.4 media candidates table for review workflow
+create table if not exists public.media_candidates (
+  id uuid primary key default gen_random_uuid(),
+  source_name text not null,
+  source_url text,
+  image_url text not null,
+  title text,
+  description text,
+  media_type text not null check (media_type in ('hero','profile','gallery','news','extracurricular','achievement')),
+  confidence numeric(5,2) default 85.00,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  created_at timestamptz not null default now(),
+  reviewed_at timestamptz
+);
+
+alter table public.media_candidates enable row level security;
+create policy "admin media candidates" on public.media_candidates for all to authenticated using (true) with check (true);
+create policy "public read approved media candidates" on public.media_candidates for select using (status = 'approved' or auth.role() = 'authenticated');
+

@@ -15,7 +15,7 @@
 <div id="appView" class="app-shell hidden">
 <aside><div class="side-brand"><div class="brand-mark">KT1</div><b>SDN Karang Tengah 1</b></div>
 <nav>
-<a href="#dashboard">📊 Dashboard</a><a href="#sekolah">🏫 Data Sekolah</a><a href="#rombel">🏷️ Rombongan Belajar</a><a href="#eskul">🏆 Ekstrakurikuler</a><a href="#kegiatan-eskul">🎯 Kegiatan Eskul</a><a href="#program">📚 Program</a><a href="#berita">📰 Berita</a><a href="#pengumuman">📢 Pengumuman</a><a href="#prestasi">🥇 Prestasi</a><a href="#galeri">🖼️ Galeri</a><a href="#dokumen">📄 Dokumen</a><a href="#jadwal">📅 Jadwal</a><a href="#sync">🔄 Sinkronisasi</a><a href="#settings">⚙️ Pengaturan</a>
+<a href="#dashboard">📊 Dashboard</a><a href="#sekolah">🏫 Data Sekolah</a><a href="#media-candidates">🖼️ Media Kandidat</a><a href="#rombel">🏷️ Rombongan Belajar</a><a href="#eskul">🏆 Ekstrakurikuler</a><a href="#kegiatan-eskul">🎯 Kegiatan Eskul</a><a href="#program">📚 Program</a><a href="#berita">📰 Berita</a><a href="#pengumuman">📢 Pengumuman</a><a href="#prestasi">🥇 Prestasi</a><a href="#galeri">🖼️ Galeri</a><a href="#dokumen">📄 Dokumen</a><a href="#jadwal">📅 Jadwal</a><a href="#sync">🔄 Sinkronisasi</a><a href="#settings">⚙️ Pengaturan</a>
 </nav><button id="logoutBtn" class="logout">Keluar</button></aside>
 
 <main class="admin-main">
@@ -42,6 +42,14 @@
 <label>Deskripsi SPMB<textarea id="schoolSpmbDescription"></textarea></label>
 <div class="logo-manager full"><div><b>Logo Sekolah</b><p class="hint">Logo dipakai pada header, hero, profil, dan kontak website publik.</p><img id="schoolLogoPreview" src="../assets/brand-kt1.svg" alt="Logo sekolah" onerror="this.onerror=null;this.src='../assets/brand-kt1.svg'"></div><div><label>Upload Logo Baru<input id="schoolLogoFile" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label><button type="button" class="secondary" id="uploadLogoBtn">Upload & Gunakan Logo</button><small>Disimpan ke Supabase Storage bucket school-media.</small></div></div><div class="logo-manager full"><div><b>Foto Hero / Gedung Sekolah</b><p class="hint">Foto ini menjadi gambar besar di halaman beranda seperti desain Professional V2.</p><img id="schoolHeroPreview" src="../assets/school-hero-placeholder.svg" alt="Foto SDN Karang Tengah 1" onerror="this.onerror=null;this.src='../assets/school-hero-placeholder.svg'"></div><div><label>Upload Foto Hero Baru<input id="schoolHeroFile" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" class="secondary" id="uploadHeroBtn">Upload & Gunakan Foto Hero</button><small>Admin dapat mengganti foto kapan saja tanpa mengubah kode.</small></div></div>
 </div><div id="profileMsg" class="msg"></div></section>
+
+<section id="media-candidates" class="panel">
+<div class="panel-head"><div><span class="eyebrow">KURASI MEDIA</span><h2>Media Kandidat (Review & Simpan ke Storage)</h2></div><button class="primary" id="openAddCandidateModalBtn">+ Daftarkan Kandidat Media</button></div>
+<p class="hint">Alur kurasi media: Sumber Internet / Resmi &rarr; Media Kandidat &rarr; Review Admin &rarr; Approve (Download &amp; Simpan ke Supabase Storage) &rarr; URL Storage otomatis digunakan website publik. Media yang ditolak tidak akan tampil ke publik.</p>
+<div id="candidateActionMsg" class="msg"></div>
+<div id="mediaCandidateList" class="media-candidate-grid"></div>
+</section>
+
 
 <section id="rombel" class="panel"><div class="panel-head"><div><span class="eyebrow">ROMBEL</span><h2>Rombongan Belajar</h2></div><button class="primary" data-add="rombel">+ Tambah Rombel</button></div><p class="hint">Simpan tahun ajaran, semester, jumlah siswa, komposisi L/P, wali kelas, ruang dan sumber data.</p><div id="rombelEditor"></div></section>
 

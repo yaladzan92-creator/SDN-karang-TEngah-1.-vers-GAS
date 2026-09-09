@@ -14,7 +14,7 @@
     old_web: "http://sdnkarteng1.blogspot.com",
     maps_url: "https://www.google.com/maps/search/?api=1&query=SDN+Karang+Tengah+1+Kota+Tangerang",
     logo_url: "assets/brand-kt1.svg",
-    hero_image_url: "https://file.data.kemendikdasmen.go.id/sekolahkita/20/2060/20607151-13.jpg",
+    hero_image_url: "assets/school-hero-placeholder.svg",
     hero_subtitle: "Sekolah Dasar Negeri di Kecamatan Karang Tengah, Kota Tangerang.",
     hero_description: "Ruang belajar yang aman, aktif, dan mendukung tumbuh kembang peserta didik.",
     profile_title: "Pendidikan Berkualitas Berlandaskan Karakter",
@@ -23,6 +23,7 @@
     spmb_description: "Informasi jalur pendaftaran, persyaratan berkas, daya tampung rombel, zonasi, dan jadwal resmi Penerimaan Peserta Didik Baru SDN Karang Tengah 1 mengacu pada portal resmi SPMB Kota Tangerang.",
     spmb_url: "https://spmb.tangerangkota.go.id/"
   };
+
 
   const fallbackRombel = [
     { name: "1 A", grade: "Kelas 1", academic_year: "2025/2026", semester: "Genap", student_count: 23 },
@@ -144,26 +145,34 @@
       profilePhoto.onerror = () => { profilePhoto.src = "assets/school-profile-placeholder.svg"; };
     }
 
-    // Vision & Mission rendering
-    const visionText = document.getElementById("visionText");
-    if (visionText) {
-      if (data.vision && data.vision.trim() !== "") {
-        visionText.className = "";
-        visionText.innerHTML = `<p style="margin:0; font-size:16px; line-height:1.7; color:var(--text-main);">${escapeHtml(data.vision)}</p>`;
-      }
+    // Vision & Mission rendering - only display section if data exists
+    const identitasSection = document.getElementById("identitas");
+    const hasVision = Boolean(data.vision && data.vision.trim() !== "");
+    let missions = [];
+    if (Array.isArray(data.mission)) {
+      missions = data.mission;
+    } else if (typeof data.mission === "string" && data.mission.startsWith("[")) {
+      try { missions = JSON.parse(data.mission); } catch (e) { missions = []; }
+    } else if (typeof data.mission === "string" && data.mission.trim() !== "") {
+      missions = data.mission.split("\n").map(x => x.trim()).filter(Boolean);
     }
+    const hasMission = missions.length > 0;
 
-    const missionText = document.getElementById("missionText");
-    if (missionText) {
-      let missions = [];
-      if (Array.isArray(data.mission)) {
-        missions = data.mission;
-      } else if (typeof data.mission === "string" && data.mission.startsWith("[")) {
-        try { missions = JSON.parse(data.mission); } catch (e) { missions = []; }
-      }
-      if (missions.length > 0) {
-        missionText.className = "";
-        missionText.innerHTML = `<ol style="margin:0; padding-left:20px; line-height:1.7; color:var(--text-main);">${missions.map(m => `<li style="margin-bottom:8px;">${escapeHtml(typeof m === 'string' ? m : m.title || '')}</li>`).join("")}</ol>`;
+    if (identitasSection) {
+      if (hasVision || hasMission) {
+        identitasSection.style.display = "";
+        const visionBox = document.getElementById("visionBox");
+        const missionBox = document.getElementById("missionBox");
+        if (visionBox) visionBox.style.display = hasVision ? "" : "none";
+        if (missionBox) missionBox.style.display = hasMission ? "" : "none";
+        if (visionText && hasVision) {
+          visionText.innerHTML = `<p style="margin:0; font-size:16px; line-height:1.7; color:var(--text-main);">${escapeHtml(data.vision)}</p>`;
+        }
+        if (missionText && hasMission) {
+          missionText.innerHTML = `<ol style="margin:0; padding-left:20px; line-height:1.7; color:var(--text-main);">${missions.map(m => `<li style="margin-bottom:8px;">${escapeHtml(typeof m === 'string' ? m : m.title || '')}</li>`).join("")}</ol>`;
+        }
+      } else {
+        identitasSection.style.display = "none";
       }
     }
   }
@@ -185,14 +194,14 @@
       list.innerHTML = `
         <div class="empty-notice" style="grid-column: 1 / -1;">
           <div class="notice-icon">📰</div>
-          <h3>Belum Ada Berita yang Dipublikasikan</h3>
-          <p>Kabar dan dokumentasi kegiatan terbaru SDN Karang Tengah 1 akan ditampilkan di sini setelah dipublikasikan oleh pihak sekolah.</p>
+          <h3>Belum Ada Warta Kegiatan</h3>
+          <p>Belum ada warta kegiatan yang dipublikasikan oleh pihak sekolah saat ini.</p>
         </div>`;
       return;
     }
     list.innerHTML = items.map(n => `
       <article class="content-card">
-        <img src="${escapeHtml(n.image_url || 'assets/school-hero-placeholder.svg')}" alt="${escapeHtml(n.title)}" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
+        <img src="${escapeHtml(n.image_url || 'assets/school-hero-placeholder.svg')}" alt="${escapeHtml(n.title)}" loading="lazy" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
         <div class="body">
           <small>${escapeHtml(n.category || 'Berita Sekolah')}</small>
           <h3>${escapeHtml(n.title)}</h3>
@@ -210,13 +219,13 @@
         <div class="empty-notice dark-notice">
           <div class="notice-icon">📢</div>
           <h3>Belum Ada Pengumuman Aktif</h3>
-          <p>Pemberitahuan resmi mengenai kegiatan belajar mengajar, libur sekolah, atau agenda akademik akan diumumkan di sini.</p>
+          <p>Belum ada pengumuman aktif saat ini. Informasi resmi akan diumumkan melalui bagian ini.</p>
         </div>`;
       return;
     }
     list.innerHTML = items.map(a => `
       <article class="announcement">
-        <strong>${escapeHtml(a.date_label || 'Pemberitahuan')}</strong>
+        <strong>${escapeHtml(a.date_label || (a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : 'Pemberitahuan'))}</strong>
         <div>
           <b>${escapeHtml(a.title)}</b>
           <p>${escapeHtml(a.body || a.content || '')}</p>
@@ -228,24 +237,23 @@
   function renderAchievements(items) {
     const list = document.getElementById("achievementList");
     if (!list) return;
-    const combined = (items && items.length > 0) ? items : candidateAchievements;
 
-    if (!combined || combined.length === 0) {
+    if (!items || items.length === 0) {
       list.innerHTML = `
         <div class="empty-notice" style="grid-column: 1 / -1;">
           <div class="notice-icon">🏆</div>
-          <h3>Daftar Prestasi Sedang Dihimpun</h3>
-          <p>Pencapaian peserta didik SDN Karang Tengah 1 akan dipublikasikan setelah diverifikasi oleh Admin Sekolah.</p>
+          <h3>Data Prestasi Sedang Dihimpun dan Diverifikasi</h3>
+          <p>Daftar pencapaian dan kejuaraan siswa SDN Karang Tengah 1 sedang dihimpun oleh pihak sekolah dan akan dipublikasikan setelah diverifikasi.</p>
         </div>`;
       return;
     }
 
-    list.innerHTML = combined.map(a => `
+    list.innerHTML = items.map(a => `
       <article class="achievement-card">
-        <span class="achieve-badge">${escapeHtml(a.category || 'Prestasi Siswa')}</span>
+        <span class="achieve-badge">${escapeHtml(a.category || 'Prestasi')}</span>
         <strong>${escapeHtml(a.title)}</strong>
         <p>${escapeHtml(a.description || '')}</p>
-        <small>Tahun: ${escapeHtml(a.year || '2024')}${a.rank ? ' · ' + escapeHtml(a.rank) : ''}</small>
+        <small>Tahun: ${escapeHtml(String(a.year || ''))}${a.level ? ' · Tingkat ' + escapeHtml(a.level) : ''}</small>
       </article>
     `).join("");
   }
@@ -255,28 +263,17 @@
     if (!list) return;
     if (!items || items.length === 0) {
       list.innerHTML = `
-        <figure>
-          <img src="assets/school-hero-placeholder.svg" alt="Gedung SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
-          <figcaption>Gedung SDN Karang Tengah 1</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/school-profile-placeholder.svg" alt="Keluarga Besar Sekolah" onerror="this.onerror=null;this.src='assets/school-profile-placeholder.svg'">
-          <figcaption>Lingkungan Pendidikan Karakter</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/brand-kt1.svg" alt="Identitas Satuan Pendidikan" onerror="this.onerror=null;this.src='assets/brand-kt1.svg'">
-          <figcaption>Identitas Satuan Pendidikan</figcaption>
-        </figure>
-        <figure>
-          <img src="assets/school-hero-placeholder.svg" alt="Ruang Belajar Siswa" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
-          <figcaption>Fasilitas Belajar &amp; Lapangan</figcaption>
-        </figure>`;
+        <div class="empty-notice" style="grid-column: 1 / -1;">
+          <div class="notice-icon">🖼️</div>
+          <h3>Galeri Kegiatan Sekolah Sedang Diperbarui</h3>
+          <p>Dokumentasi kegiatan belajar mengajar dan fasilitas SDN Karang Tengah 1 sedang disiapkan oleh pihak sekolah.</p>
+        </div>`;
       return;
     }
     list.innerHTML = items.map(g => `
       <figure>
-        <img src="${escapeHtml(g.image_url)}" alt="${escapeHtml(g.caption || 'Dokumentasi Sekolah')}" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
-        <figcaption>${escapeHtml(g.caption || 'Dokumentasi SDN Karang Tengah 1')}</figcaption>
+        <img src="${escapeHtml(g.image_url)}" alt="${escapeHtml(g.title || g.caption || 'Dokumentasi Sekolah')}" loading="lazy" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
+        <figcaption>${escapeHtml(g.title || g.caption || 'Dokumentasi SDN Karang Tengah 1')}</figcaption>
       </figure>
     `).join("");
   }
@@ -288,16 +285,16 @@
       list.innerHTML = `
         <div class="empty-notice" style="grid-column: 1 / -1;">
           <div class="notice-icon">🎯</div>
-          <h3>Daftar Ekstrakurikuler Sedang Diperbarui</h3>
-          <p>Informasi jadwal dan pilihan kegiatan ekstrakurikuler SDN Karang Tengah 1 akan diumumkan oleh pembina eskul.</p>
+          <h3>Informasi Ekstrakurikuler Sedang Diperbarui</h3>
+          <p>Informasi ekstrakurikuler sedang diperbarui oleh pihak sekolah.</p>
         </div>`;
       return;
     }
     list.innerHTML = items.map(e => `
       <article class="content-card">
-        ${e.image_url ? `<img src="${escapeHtml(e.image_url)}" alt="${escapeHtml(e.name)}" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">` : ''}
+        ${e.image_url ? `<img src="${escapeHtml(e.image_url)}" alt="${escapeHtml(e.name)}" loading="lazy" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">` : ''}
         <div class="body">
-          <small>${escapeHtml(e.category || 'Pengembangan Diri')}</small>
+          <small>${escapeHtml(e.day ? e.day + (e.start_time ? ' · ' + e.start_time : '') : 'Pengembangan Diri')}</small>
           <h3>${escapeHtml(e.name)}</h3>
           <p>${escapeHtml(e.description || '')}</p>
         </div>
@@ -453,18 +450,19 @@
         docRes,
         socRes
       ] = await Promise.all([
-        client.from("school_profile").select("*").eq("id", 1).single(),
+        client.from("school_profile").select("*").eq("id", 1).maybeSingle(),
         client.from("news").select("*").eq("published", true).order("published_at", { ascending: false }).limit(6),
-        client.from("announcements").select("*").eq("active", true).order("created_at", { ascending: false }).limit(4),
-        client.from("achievements").select("*").eq("published", true).order("created_at", { ascending: false }).limit(6),
-        client.from("gallery_items").select("*").eq("published", true).order("created_at", { ascending: false }).limit(8),
-        client.from("extracurriculars").select("*").eq("published", true).order("created_at", { ascending: true }),
-        client.from("extracurricular_activities").select("*").eq("published", true).order("activity_date", { ascending: false }).limit(6),
+        client.from("announcements").select("*").eq("published", true).order("published_at", { ascending: false }).limit(4),
+        client.from("achievements").select("*").eq("published", true).order("year", { ascending: false }).limit(6),
+        client.from("gallery").select("*").eq("published", true).order("created_at", { ascending: false }).limit(8),
+        client.from("extracurriculars").select("*").eq("active", true).order("name", { ascending: true }),
+        client.from("extracurricular_activities").select("*").order("activity_date", { ascending: false }).limit(6),
         client.from("class_groups").select("*").eq("published", true).order("grade", { ascending: true }),
-        client.from("schedules").select("*").eq("published", true).order("created_at", { ascending: true }).limit(4),
+        client.from("school_schedules").select("*").order("sort_order", { ascending: true }).limit(4),
         client.from("documents").select("*").eq("published", true).order("created_at", { ascending: true }).limit(4),
-        client.from("social_media_links").select("*").eq("enabled", true).order("sort_order", { ascending: true })
+        client.from("social_media_links").select("*").eq("enabled", true).order("sort_order", { ascending: true }).catch?.(() => ({ data: [] })) || client.from("social_media_links").select("*").eq("enabled", true).order("sort_order", { ascending: true })
       ]);
+
 
       if (pRes.data) renderProfile(pRes.data);
       if (newsRes.data) renderNews(newsRes.data);
