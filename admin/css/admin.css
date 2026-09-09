@@ -17,3 +17,95 @@
 .media-badge.status-approved{background:#e6f7ef;color:#1e7e4a}
 .media-badge.status-rejected{background:#fee2e2;color:#b91c1c}
 
+/* AI Optimization Button & Preview UI */
+.ai-btn-container {
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e1e8ef;
+}
+.ai-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+}
+.ai-btn:hover {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+}
+.ai-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.ai-preview-card {
+  border: 2px solid #8b5cf6;
+  background: #fdfcff;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+}
+.ai-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #ddd6fe;
+}
+.ai-preview-header strong {
+  color: #6d28d9;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-preview-header small {
+  color: #7c3aed;
+  font-size: 12px;
+}
+.ai-preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.preview-group label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #6d28d9;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+.preview-box-text {
+  background: #ffffff;
+  border: 1px solid #e9d5ff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #1e1b4b;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.ai-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+

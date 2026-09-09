@@ -140,6 +140,7 @@ alter table public.school_profile add column if not exists facebook_url text;
 alter table public.school_profile add column if not exists youtube_url text;
 alter table public.school_profile add column if not exists tiktok_url text;
 alter table public.school_profile add column if not exists whatsapp_url text;
+alter table public.school_profile add column if not exists profile_image_url text;
 
 -- V4.4 media candidates table for review workflow
 create table if not exists public.media_candidates (
@@ -147,6 +148,7 @@ create table if not exists public.media_candidates (
   source_name text not null,
   source_url text,
   image_url text not null,
+  storage_url text,
   title text,
   description text,
   media_type text not null check (media_type in ('hero','profile','gallery','news','extracurricular','achievement')),

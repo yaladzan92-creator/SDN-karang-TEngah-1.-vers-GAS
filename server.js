@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import { GoogleGenAI, Type } from '@google/genai';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,6 +13,22 @@ const port = 3000;
 const host = '0.0.0.0';
 
 app.use(express.json({ limit: '10mb' }));
+
+// Helper to get GoogleGenAI client
+function getGenAI() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY belum dikonfigurasi di environment server (Settings > Secrets).');
+  }
+  return new GoogleGenAI({
+    apiKey,
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build'
+      }
+    }
+  });
+}
 
 // Ensure upload folders exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -170,6 +187,88 @@ app.post('/api/media/approve', async (req, res) => {
   } catch (err) {
     console.error('Error approving media candidate:', err);
     return res.status(500).json({ error: err.message || 'Gagal menyetujui media kandidat.' });
+  }
+});
+
+// AI Optimization endpoint for news & captions (Admin only, server-side Gemini API)
+app.post('/api/ai/optimize', async (req, res) => {
+  try {
+    const { title, content, excerpt } = req.body || {};
+    const ai = getGenAI();
+
+    const textToAnalyze = [
+      title ? `Judul Asli: ${title}` : null,
+      content ? `Isi / Teks Asli:\n${content}` : (excerpt ? `Ringkasan / Teks Asli:\n${excerpt}` : null)
+    ].filter(Boolean).join('\n\n');
+
+    if (!textToAnalyze.trim()) {
+      return res.status(400).json({ error: 'Tidak ada teks yang diberikan untuk dioptimalkan.' });
+    }
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: `Optimalkan draft teks berita sekolah berikut:\n\n${textToAnalyze}`,
+      config: {
+        systemInstruction: `You are an editorial assistant for the official website of SDN Karang Tengah 1, Kota Tangerang.
+
+Your task is to optimize text written by school administrators or obtained from approved source material.
+
+Improve:
+grammar,
+spelling,
+punctuation,
+clarity,
+paragraph structure,
+headline quality,
+readability,
+and professional school-news tone.
+
+Preserve all factual meaning.
+
+NEVER invent names, dates, numbers, positions, locations, quotations, achievements, activities, school programs, or other factual information.
+
+If a fact is not present in the source material, do not add it.
+
+Return an improved headline and article body.
+
+Do not publish or modify database records.`,
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            headline: {
+              type: Type.STRING,
+              description: 'Optimized news title / headline'
+            },
+            body: {
+              type: Type.STRING,
+              description: 'Optimized article content / body'
+            }
+          },
+          required: ['headline', 'body']
+        }
+      }
+    });
+
+    const textResult = response.text || '';
+    let parsed = {};
+    try {
+      parsed = JSON.parse(textResult.replace(/```json|```/g, '').trim());
+    } catch (parseErr) {
+      parsed = { headline: title || '', body: textResult };
+    }
+
+    return res.json({
+      success: true,
+      headline: parsed.headline || title || '',
+      body: parsed.body || content || excerpt || ''
+    });
+
+  } catch (err) {
+    console.error('Error optimizing text with Gemini:', err);
+    return res.status(500).json({
+      error: err.message || 'Gagal mengoptimalkan teks menggunakan AI.'
+    });
   }
 });
 

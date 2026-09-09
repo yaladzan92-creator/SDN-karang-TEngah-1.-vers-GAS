@@ -40,16 +40,6 @@
     { name: "6 B", grade: "Kelas 6", academic_year: "2025/2026", semester: "Genap", student_count: 29 }
   ];
 
-  const candidateAchievements = [
-    {
-      title: "Pentas PAI & FLS2N Tingkat Kecamatan",
-      category: "Kandidat Data — Menunggu Verifikasi Admin",
-      year: "2024",
-      description: "Keikutsertaan kontingen siswa dalam ajang kreativitas seni dan pendidikan agama Islam tingkat Kecamatan Karang Tengah.",
-      isCandidate: true
-    }
-  ];
-
   function getClient() {
     const s = window.SDN || window.SDN11;
     return (s && s.configured && s.client) ? s.client : null;
@@ -146,11 +136,19 @@
     // Profile photo fallback
     const profilePhoto = document.getElementById("profilePhoto");
     if (profilePhoto) {
+      if (data.profile_image_url) {
+        profilePhoto.src = data.profile_image_url;
+      }
       profilePhoto.onerror = () => { profilePhoto.src = "assets/school-profile-placeholder.svg"; };
     }
 
-    // Vision & Mission rendering - only display section if data exists
+    // Vision & Mission rendering - declare visionText and missionText explicitly
     const identitasSection = document.getElementById("identitas");
+    const visionBox = document.getElementById("visionBox");
+    const missionBox = document.getElementById("missionBox");
+    const visionText = document.getElementById("visionText");
+    const missionText = document.getElementById("missionText");
+
     const hasVision = Boolean(data.vision && data.vision.trim() !== "");
     let missions = [];
     if (Array.isArray(data.mission)) {
@@ -165,20 +163,20 @@
     if (identitasSection) {
       if (hasVision || hasMission) {
         identitasSection.style.display = "";
-        const visionBox = document.getElementById("visionBox");
-        const missionBox = document.getElementById("missionBox");
         if (visionBox) visionBox.style.display = hasVision ? "" : "none";
         if (missionBox) missionBox.style.display = hasMission ? "" : "none";
         if (visionText && hasVision) {
           visionText.innerHTML = `<p style="margin:0; font-size:16px; line-height:1.7; color:var(--text-main);">${escapeHtml(data.vision)}</p>`;
         }
         if (missionText && hasMission) {
-          missionText.innerHTML = `<ol style="margin:0; padding-left:20px; line-height:1.7; color:var(--text-main);">${missions.map(m => `<li style="margin-bottom:8px;">${escapeHtml(typeof m === 'string' ? m : m.title || '')}</li>`).join("")}</ol>`;
+          missionText.innerHTML = `<ol style="margin:0; padding-left:20px; line-height:1.7; color:var(--text-main);">${missions.map(m => `<li style="margin-bottom:8px;">${escapeHtml(typeof m === 'string' ? m : (m && m.title) ? m.title : String(m))}</li>`).join("")}</ol>`;
         }
       } else {
         identitasSection.style.display = "none";
       }
     }
+
+    renderSocialMedia(data);
   }
 
   function escapeHtml(str) {
@@ -423,20 +421,41 @@
     `).join("");
   }
 
-  function renderSocialMedia(items) {
+  function renderSocialMedia(profileData) {
     const container = document.getElementById("socialLinks");
     if (!container) return;
-    if (!items || items.length === 0) {
-      container.innerHTML = `
-        <p style="font-size: 13px; color: var(--text-muted); margin: 6px 0 0;">
-          Akun media sosial resmi SDN Karang Tengah 1 akan ditampilkan di sini setelah diverifikasi dan ditautkan oleh Admin Sekolah.
-        </p>`;
+
+    const platforms = [
+      { key: "instagram_url", label: "Instagram", badge: "IG" },
+      { key: "facebook_url", label: "Facebook", badge: "FB" },
+      { key: "youtube_url", label: "YouTube", badge: "YT" },
+      { key: "tiktok_url", label: "TikTok", badge: "TT" },
+      { key: "whatsapp_url", label: "WhatsApp", badge: "WA" }
+    ];
+
+    const activeLinks = [];
+    if (profileData) {
+      for (const p of platforms) {
+        const url = profileData[p.key];
+        if (url && typeof url === "string" && url.trim() !== "") {
+          activeLinks.push({
+            url: url.trim(),
+            label: p.label,
+            badge: p.badge
+          });
+        }
+      }
+    }
+
+    if (activeLinks.length === 0) {
+      container.innerHTML = `<small style="font-size: 13px; color: var(--text-muted);">Media sosial resmi belum ditautkan.</small>`;
       return;
     }
-    container.innerHTML = items.map(s => `
+
+    container.innerHTML = activeLinks.map(s => `
       <a class="social-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener noreferrer">
-        <span>${escapeHtml((s.platform || 'Link').substring(0, 2).toUpperCase())}</span>
-        ${escapeHtml(s.label || s.platform)}
+        <span>${escapeHtml(s.badge)}</span>
+        ${escapeHtml(s.label)}
       </a>
     `).join("");
   }
@@ -444,7 +463,7 @@
   async function loadData() {
     renderProfile(verifiedProfile);
     renderRombel(fallbackRombel);
-    renderAchievements(candidateAchievements);
+    renderAchievements([]);
     renderNews([]);
     renderAnnouncements([]);
     renderGallery([]);
@@ -452,7 +471,7 @@
     renderActivities([]);
     renderSchedules([]);
     renderDocuments([]);
-    renderSocialMedia([]);
+    renderSocialMedia(verifiedProfile);
 
     const client = getClient();
     if (!client) {
@@ -470,8 +489,7 @@
         actRes,
         rombelRes,
         schRes,
-        docRes,
-        socRes
+        docRes
       ] = await Promise.all([
         client.from("school_profile").select("*").eq("id", 1).maybeSingle(),
         client.from("news").select("*").eq("published", true).order("published_at", { ascending: false }).limit(6),
@@ -479,25 +497,25 @@
         client.from("achievements").select("*").eq("published", true).order("year", { ascending: false }).limit(6),
         client.from("gallery").select("*").eq("published", true).order("created_at", { ascending: false }).limit(8),
         client.from("extracurriculars").select("*").eq("active", true).order("name", { ascending: true }),
-        client.from("extracurricular_activities").select("*").order("activity_date", { ascending: false }).limit(6),
+        client.from("extracurricular_activities").select("*").eq("published", true).order("activity_date", { ascending: false }).limit(6),
         client.from("class_groups").select("*").eq("published", true).order("grade", { ascending: true }),
-        client.from("school_schedules").select("*").order("sort_order", { ascending: true }).limit(4),
-        client.from("documents").select("*").eq("published", true).order("created_at", { ascending: true }).limit(4),
-        client.from("social_media_links").select("*").eq("enabled", true).order("sort_order", { ascending: true }).catch?.(() => ({ data: [] })) || client.from("social_media_links").select("*").eq("enabled", true).order("sort_order", { ascending: true })
+        client.from("school_schedules").select("*").eq("published", true).order("sort_order", { ascending: true }).limit(4),
+        client.from("documents").select("*").eq("published", true).order("created_at", { ascending: true }).limit(4)
       ]);
 
-
-      if (pRes.data) renderProfile(pRes.data);
+      if (pRes.data) {
+        renderProfile(pRes.data);
+        renderSocialMedia(pRes.data);
+      }
       if (newsRes.data) renderNews(newsRes.data);
       if (annRes.data) renderAnnouncements(annRes.data);
-      if (achRes.data && achRes.data.length > 0) renderAchievements(achRes.data);
+      if (achRes.data) renderAchievements(achRes.data);
       if (galRes.data) renderGallery(galRes.data);
       if (eskulRes.data) renderEskul(eskulRes.data);
       if (actRes.data) renderActivities(actRes.data);
       if (rombelRes.data && rombelRes.data.length > 0) renderRombel(rombelRes.data);
       if (schRes.data) renderSchedules(schRes.data);
       if (docRes.data) renderDocuments(docRes.data);
-      if (socRes.data) renderSocialMedia(socRes.data);
     } catch (err) {
       console.warn("Info Supabase: menggunakan data referensi SDN Karang Tengah 1.", err);
     }

@@ -95,7 +95,158 @@ function renderAll(){
 function renderTable(type){const d=defs[type],box=$(type+"Editor");const fields=d.fields.filter(f=>f[2]!=="file").slice(0,5);if(!cache[type].length){box.innerHTML='<p class="empty">Belum ada data. Klik “+ Tambah”.</p>';return}box.innerHTML=`<div class="table-wrap"><table class="editor-table"><thead><tr>${fields.map(f=>`<th>${esc(f[1])}</th>`).join("")}<th>Aksi</th></tr></thead><tbody>${cache[type].map(x=>`<tr>${fields.map(f=>`<td>${esc(displayValue(f,x[f[0]]))}</td>`).join("")}<td><div class="editor-actions"><button class="secondary" onclick="openEditor('${type}','${x.id}')">Edit</button><button class="danger" onclick="deleteItem('${type}','${x.id}')">Hapus</button></div></td></tr>`).join("")}</tbody></table></div>`}
 function displayValue(f,v){if(f[2]==="checkbox")return v?"Ya":"Tidak";if(f[2]==="eskul"){const x=cache.eskul.find(e=>e.id===v);return x?.name||"-"}return v??"-"}
 document.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>openEditor(b.dataset.add,null))
-window.openEditor=(type,id)=>{const d=defs[type],item=id?cache[type].find(x=>String(x.id)===String(id)):{};$("modalTitle").textContent=(id?"Edit ":"Tambah ")+d.title;$("modalForm").innerHTML=d.fields.map(f=>fieldHTML(f,item[f[0]],type)).join("")+`<div class="form-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan</button></div>`;$("modal").classList.remove("hidden");$("modalForm").onsubmit=e=>saveEditor(e,type,id)}
+window.openEditor=(type,id)=>{
+  const d=defs[type],item=id?cache[type].find(x=>String(x.id)===String(id)):{};
+  $("modalTitle").textContent=(id?"Edit ":"Tambah ")+d.title;
+  
+  let html = d.fields.map(f=>fieldHTML(f,item[f[0]],type)).join("");
+  
+  if(["news","announcement","activity"].includes(type)){
+    html += `
+      <div class="ai-btn-container">
+        <button type="button" id="aiOptimizeBtn" class="ai-btn" onclick="runAiOptimization()">✨ Optimalkan dengan AI</button>
+        <div id="aiPreviewArea"></div>
+      </div>
+    `;
+  }
+  
+  html += `<div class="form-actions"><button type="button" class="secondary" onclick="closeModal()">Batal</button><button class="primary">Simpan</button></div>`;
+  
+  $("modalForm").innerHTML = html;
+  $("modal").classList.remove("hidden");
+  $("modalForm").onsubmit=e=>saveEditor(e,type,id);
+};
+
+window.openNewsEditorWithCandidate = (title, description, imageUrl) => {
+  openEditor("news", null);
+  setTimeout(() => {
+    const form = $("modalForm");
+    if (!form) return;
+    const titleInput = form.querySelector('input[name="title"]');
+    const contentInput = form.querySelector('textarea[name="content"]');
+    const excerptInput = form.querySelector('textarea[name="excerpt"]');
+    const imageUrlInput = form.querySelector('input[name="image_url"]');
+
+    if (titleInput && title) titleInput.value = title;
+    if (contentInput && description) contentInput.value = description;
+    if (excerptInput && description) excerptInput.value = description.slice(0, 150);
+    if (imageUrlInput && imageUrl) imageUrlInput.value = imageUrl;
+  }, 50);
+};
+
+window.runAiOptimization = async () => {
+  const btn = $("aiOptimizeBtn");
+  const area = $("aiPreviewArea");
+  if (!area) return;
+
+  const form = $("modalForm");
+  if (!form) return;
+
+  const titleInput = form.querySelector('input[name="title"]');
+  const contentInput = form.querySelector('textarea[name="content"]') || form.querySelector('textarea[name="body"]') || form.querySelector('textarea[name="description"]');
+  const excerptInput = form.querySelector('textarea[name="excerpt"]');
+
+  const rawTitle = titleInput ? titleInput.value.trim() : "";
+  const rawContent = contentInput ? contentInput.value.trim() : (excerptInput ? excerptInput.value.trim() : "");
+
+  if (!rawTitle && !rawContent) {
+    area.innerHTML = `
+      <div style="padding:10px;background:#fff8e6;border:1px solid #fef08a;border-radius:8px;margin-top:10px;font-size:12px;color:#854d0e;">
+        ⚠️ Silakan isi judul atau draf materi tulisan terlebih dahulu sebelum mengoptimalkan dengan AI.
+      </div>
+    `;
+    return;
+  }
+
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `✨ AI Sedang Menganalisis &amp; Mengoptimalkan...`;
+  }
+
+  area.innerHTML = `
+    <div style="padding:12px;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:10px;margin-top:12px;font-size:13px;color:#6d28d9;display:flex;align-items:center;gap:8px;">
+      <span>✨</span> AI sedang menganalisis ejaan, tata bahasa, dan membentuk format berita sekolah...
+    </div>
+  `;
+
+  try {
+    const session = (await c?.auth?.getSession?.())?.data?.session;
+    const token = session?.access_token || "";
+
+    const resp = await fetch("/api/ai/optimize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": token ? `Bearer ${token}` : ""
+      },
+      body: JSON.stringify({
+        title: rawTitle,
+        content: rawContent,
+        excerpt: excerptInput ? excerptInput.value.trim() : ""
+      })
+    });
+
+    const data = await resp.json();
+    if (!resp.ok || !data.success) {
+      throw new Error(data.error || "Gagal mengoptimalkan teks dengan AI.");
+    }
+
+    const optHeadline = data.headline || rawTitle;
+    const optBody = data.body || rawContent;
+
+    area.innerHTML = `
+      <div class="ai-preview-card">
+        <div class="ai-preview-header">
+          <strong>✨ Hasil Optimasi AI (Preview)</strong>
+          <small>Fakta Asli Dipertahankan • Gaya Berita Sekolah</small>
+        </div>
+        <div class="ai-preview-body">
+          <div class="preview-group">
+            <label>Judul Hasil AI:</label>
+            <div class="preview-box-text" id="aiResTitle">${esc(optHeadline)}</div>
+          </div>
+          <div class="preview-group">
+            <label>Isi Berita Hasil AI:</label>
+            <div class="preview-box-text" id="aiResBody">${esc(optBody)}</div>
+          </div>
+        </div>
+        <div class="ai-preview-actions">
+          <button type="button" class="secondary" id="aiCancelBtn">Batal</button>
+          <button type="button" class="primary" id="aiApplyBtn" style="background:#7c3aed;">Gunakan Hasil</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("aiApplyBtn").onclick = () => {
+      if (titleInput) titleInput.value = optHeadline;
+      if (contentInput) contentInput.value = optBody;
+      if (excerptInput && !excerptInput.value.trim()) {
+        excerptInput.value = optBody.slice(0, 150) + (optBody.length > 150 ? "..." : "");
+      }
+      area.innerHTML = `
+        <div style="padding:10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-top:10px;font-size:12px;color:#166534;font-weight:700;">
+          ✓ Hasil optimasi AI berhasil diterapkan ke editor. Anda dapat mengedit manual sebelum menekan Simpan.
+        </div>
+      `;
+    };
+
+    document.getElementById("aiCancelBtn").onclick = () => {
+      area.innerHTML = "";
+    };
+
+  } catch (err) {
+    area.innerHTML = `
+      <div style="padding:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-top:10px;font-size:12px;color:#991b1b;">
+        <b>Gagal Optimasi AI:</b> ${esc(err.message)}
+      </div>
+    `;
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `✨ Optimalkan dengan AI`;
+    }
+  }
+};
 function fieldHTML(f,v,type){const [name,label,kind]=f;if(kind==="checkbox")return `<label class="full"><input type="checkbox" name="${name}" ${v!==false?"checked":""}> ${esc(label)}</label>`;if(kind==="textarea")return `<label class="full">${esc(label)}<textarea name="${name}">${esc(v||"")}</textarea></label>`;if(kind==="file")return `<label class="full">${esc(label)}<input type="file" name="${name}"><span class="file-note">File akan disimpan ke Supabase Storage.</span></label>`;if(kind==="eskul")return `<label>${esc(label)}<select name="${name}" required><option value="">Pilih Eskul</option>${cache.eskul.map(x=>`<option value="${x.id}" ${x.id===v?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>`;return `<label>${esc(label)}<input type="${kind}" name="${name}" value="${esc(kind==="date"&&v?String(v).slice(0,10):(v??""))}"></label>`}
 async function saveEditor(e,type,id){e.preventDefault();const d=defs[type],fd=new FormData(e.target),payload={};for(const f of d.fields){const [name,,kind]=f;if(kind==="file")continue;if(kind==="checkbox")payload[name]=fd.get(name)==="on";else if(kind==="number")payload[name]=fd.get(name)?+fd.get(name):null;else if(kind==="date"&&fd.get(name)&&(["news","announcement"].includes(type)))payload[name]=fd.get(name)+"T00:00:00+07:00";else payload[name]=fd.get(name)||null}
  try{
@@ -146,13 +297,15 @@ function renderMediaCandidates(){
           <h4>${esc(x.title||"Dokumentasi Sekolah")}</h4>
           <p>${esc(x.description||"Kandidat foto sekolah dari pangkalan data resmi.")}</p>
           <small class="hint">Sumber: <a href="${esc(x.source_url||'#')}" target="_blank" rel="noopener">${esc(x.source_name||"Internet")}</a></small>
-          <div class="editor-actions" style="margin-top:12px;">
+          <div class="editor-actions" style="margin-top:12px;flex-wrap:wrap;gap:6px;">
             ${isPending ? `
               <button class="primary" onclick="approveCandidate('${x.id}')">Approve &amp; Simpan ke Storage</button>
+              <button type="button" class="secondary" onclick="openNewsEditorWithCandidate('${esc(x.title||'Berita Sekolah')}', '${esc(x.description||'')}', '${esc(x.storage_url||x.image_url)}')">✏️ Optimalkan sebagai Berita</button>
               <button class="danger" onclick="rejectCandidateMedia('${x.id}')">Tolak</button>
             ` : isApproved ? `
               <span style="font-size:12px;color:#1e7e4a;font-weight:700;">✓ Disimpan di Storage:</span>
               <a href="${esc(x.storage_url||x.image_url)}" target="_blank" style="font-size:11px;color:#0d6efd;word-break:break-all;">${esc((x.storage_url||x.image_url).slice(0,40))}...</a>
+              <button type="button" class="secondary" style="margin-top:4px;" onclick="openNewsEditorWithCandidate('${esc(x.title||'Berita Sekolah')}', '${esc(x.description||'')}', '${esc(x.storage_url||x.image_url)}')">✏️ Optimalkan sebagai Berita</button>
             ` : `
               <span style="font-size:12px;color:#b91c1c;font-weight:700;">✗ Ditolak</span>
             `}
@@ -166,66 +319,152 @@ function renderMediaCandidates(){
 window.approveCandidate = async (id) => {
   const item = cache.media_candidates.find(x => String(x.id) === String(id));
   if(!item) return;
-  const msgEl = $("candidateActionMsg");
-  if(msgEl) msgEl.textContent = "Mengunduh media server-side dan menyimpan ke Supabase Storage...";
 
-  try {
-    const session = (await c?.auth?.getSession?.())?.data?.session;
-    const token = session?.access_token || "";
+  $("modalTitle").textContent = "Pilih Target Penggunaan Media";
+  $("modalForm").innerHTML = `
+    <div style="margin-bottom:12px;">
+      <p style="font-size:13px;color:#475569;margin:0 0 8px;">Kandidat: <b>${esc(item.title || "Foto Dokumentasi")}</b></p>
+      <img src="${esc(item.storage_url || `/api/media-proxy?url=${encodeURIComponent(item.image_url)}`)}" style="max-height:120px;border-radius:6px;object-fit:cover;width:100%;" alt="Preview"/>
+    </div>
+    <label>Target Penggunaan
+      <select id="approveTargetType" onchange="toggleApproveTargetFields()">
+        <option value="hero" ${item.media_type === "hero" ? "selected" : ""}>Foto Hero / Banner Beranda</option>
+        <option value="profile" ${item.media_type === "profile" ? "selected" : ""}>Foto Profil / Logo Sekolah</option>
+        <option value="gallery" ${item.media_type === "gallery" ? "selected" : ""}>Galeri Foto Sekolah</option>
+        <option value="news" ${item.media_type === "news" ? "selected" : ""}>Lampirkan ke Berita / Warta</option>
+        <option value="extracurricular" ${item.media_type === "extracurricular" ? "selected" : ""}>Lampirkan ke Ekstrakurikuler</option>
+        <option value="achievement" ${item.media_type === "achievement" ? "selected" : ""}>Lampirkan ke Prestasi</option>
+      </select>
+    </label>
+    
+    <div id="targetNewsGroup" style="display:none;" class="full">
+      <label>Pilih Berita Target
+        <select id="approveTargetNewsId">
+          <option value="">-- Pilih Berita Yang Ada --</option>
+          ${cache.news.map(n => `<option value="${n.id}">${esc(n.title)}</option>`).join("")}
+        </select>
+      </label>
+    </div>
 
-    const resp = await fetch("/api/media/approve", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": token ? `Bearer ${token}` : ""
-      },
-      body: JSON.stringify({
-        id: item.id,
-        image_url: item.image_url,
-        media_type: item.media_type,
-        title: item.title,
-        description: item.description
-      })
-    });
+    <div id="targetEskulGroup" style="display:none;" class="full">
+      <label>Pilih Ekstrakurikuler Target
+        <select id="approveTargetEskulId">
+          <option value="">-- Pilih Ekstrakurikuler --</option>
+          ${cache.eskul.map(e => `<option value="${e.id}">${esc(e.name)}</option>`).join("")}
+        </select>
+      </label>
+    </div>
 
-    const res = await resp.json();
-    if(!resp.ok || !res.success) throw new Error(res.error || "Gagal memproses kandidat");
+    <div id="targetAchGroup" style="display:none;" class="full">
+      <label>Pilih Prestasi Target
+        <select id="approveTargetAchId">
+          <option value="">-- Pilih Prestasi Terverifikasi --</option>
+          ${cache.achievement.map(a => `<option value="${a.id}">${esc(a.title)} (${a.year || ''})</option>`).join("")}
+        </select>
+      </label>
+    </div>
 
-    const storageUrl = res.storage_url;
-    item.storage_url = storageUrl;
-    item.status = "approved";
-    item.reviewed_at = new Date().toISOString();
+    <div class="form-actions" style="margin-top:16px;">
+      <button type="button" class="secondary" onclick="closeModal()">Batal</button>
+      <button class="primary" type="submit" id="submitApproveBtn">Approve &amp; Simpan ke Storage</button>
+    </div>
+  `;
 
-    if(c) {
-      if(item.media_type === "hero") {
-        await c.from("school_profile").update({ hero_image_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
-        profile.hero_image_url = storageUrl;
-        if($("schoolHeroPreview")) $("schoolHeroPreview").src = storageUrl;
-      } else if(item.media_type === "profile" || item.media_type === "branding") {
-        await c.from("school_profile").update({ logo_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
-        profile.logo_url = storageUrl;
-        if($("schoolLogoPreview")) $("schoolLogoPreview").src = storageUrl;
-      } else if(item.media_type === "gallery") {
-        await c.from("gallery").insert({ title: item.title || "Dokumentasi Sekolah", image_url: storageUrl, published: true });
-      } else if(item.media_type === "news") {
-        await c.from("news").insert({ title: item.title || "Warta Sekolah", excerpt: item.description || "", content: item.description || "", image_url: storageUrl, published: true, published_at: new Date().toISOString() });
+  window.toggleApproveTargetFields = () => {
+    const t = $("approveTargetType")?.value;
+    if($("targetNewsGroup")) $("targetNewsGroup").style.display = (t === "news") ? "block" : "none";
+    if($("targetEskulGroup")) $("targetEskulGroup").style.display = (t === "extracurricular") ? "block" : "none";
+    if($("targetAchGroup")) $("targetAchGroup").style.display = (t === "achievement") ? "block" : "none";
+  };
+  toggleApproveTargetFields();
+
+  $("modal").classList.remove("hidden");
+
+  $("modalForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = $("submitApproveBtn");
+    if(btn) { btn.disabled = true; btn.textContent = "Mengunduh & Menyimpan ke Storage..."; }
+
+    try {
+      const targetType = $("approveTargetType").value;
+      const session = (await c?.auth?.getSession?.())?.data?.session;
+      const token = session?.access_token || "";
+
+      const resp = await fetch("/api/media/approve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
+        },
+        body: JSON.stringify({
+          id: item.id,
+          image_url: item.image_url,
+          media_type: targetType,
+          title: item.title,
+          description: item.description
+        })
+      });
+
+      const res = await resp.json();
+      if(!resp.ok || !res.success) throw new Error(res.error || "Gagal memproses kandidat");
+
+      const storageUrl = res.storage_url;
+      item.storage_url = storageUrl;
+      item.status = "approved";
+      item.reviewed_at = new Date().toISOString();
+
+      if(c) {
+        if(targetType === "hero") {
+          await c.from("school_profile").update({ hero_image_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
+          profile.hero_image_url = storageUrl;
+          if($("schoolHeroPreview")) $("schoolHeroPreview").src = storageUrl;
+        } else if(targetType === "profile") {
+          await c.from("school_profile").update({ profile_image_url: storageUrl, logo_url: storageUrl, updated_at: new Date().toISOString() }).eq("id", 1);
+          profile.logo_url = storageUrl;
+          profile.profile_image_url = storageUrl;
+          if($("schoolLogoPreview")) $("schoolLogoPreview").src = storageUrl;
+        } else if(targetType === "gallery") {
+          await c.from("gallery").insert({ title: item.title || "Dokumentasi Sekolah", image_url: storageUrl, published: true });
+        } else if(targetType === "news") {
+          const newsId = $("approveTargetNewsId")?.value;
+          if(newsId) {
+            await c.from("news").update({ image_url: storageUrl }).eq("id", newsId);
+          } else {
+            await c.from("news").insert({ title: item.title || "Warta Sekolah", excerpt: item.description || "", content: item.description || "", image_url: storageUrl, published: true, published_at: new Date().toISOString() });
+          }
+        } else if(targetType === "extracurricular") {
+          const eskulId = $("approveTargetEskulId")?.value;
+          if(eskulId) {
+            await c.from("extracurriculars").update({ image_url: storageUrl }).eq("id", eskulId);
+          }
+        } else if(targetType === "achievement") {
+          const achId = $("approveTargetAchId")?.value;
+          if(achId) {
+            const achObj = cache.achievement.find(a => String(a.id) === String(achId));
+            const newDesc = ((achObj?.description || "") + "\n\n[Foto Dokumentasi: " + storageUrl + "]").trim();
+            await c.from("achievements").update({ description: newDesc }).eq("id", achId);
+          }
+        }
+
+        try {
+          await c.from("media_candidates").update({ status: "approved", storage_url: storageUrl, reviewed_at: item.reviewed_at }).eq("id", item.id);
+        } catch(dbErr) {
+          console.warn("Update media_candidates db note:", dbErr);
+        }
       }
 
-      try {
-        await c.from("media_candidates").update({ status: "approved", reviewed_at: item.reviewed_at }).eq("id", item.id);
-      } catch(dbErr) {
-        console.warn("Update media_candidates db note:", dbErr);
+      closeModal();
+      const msgEl = $("candidateActionMsg");
+      if(msgEl) {
+        msgEl.innerHTML = `<span style="color:#10b981;font-weight:bold;">✓ Media disetujui &amp; disimpan ke Supabase Storage: <code>${esc(storageUrl)}</code></span>`;
       }
+      renderMediaCandidates();
+      fillProfile();
+    } catch(err) {
+      alert("Gagal approve media: " + err.message);
+      if(btn) { btn.disabled = false; btn.textContent = "Approve & Simpan ke Storage"; }
     }
-
-    if(msgEl) {
-      msgEl.innerHTML = `<span style="color:#10b981;font-weight:bold;">✓ Media disetujui &amp; disimpan ke Supabase Storage: <code>${esc(storageUrl)}</code></span>`;
-    }
-    renderMediaCandidates();
-    fillProfile();
-  } catch(err) {
-    if(msgEl) msgEl.textContent = "Gagal approve media: " + err.message;
-  }
+  };
 };
 
 window.rejectCandidateMedia = async (id) => {
