@@ -1,5 +1,5 @@
 window.SDN_CONFIG = window.SDN11_CONFIG = {
-  SUPABASE_URL: "PASTE_SUPABASE_PROJECT_URL",
-  SUPABASE_ANON_KEY: "PASTE_SUPABASE_PUBLISHABLE_KEY",
+  SUPABASE_URL: "https://cevhqvgzjyvfvwesohzf.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_t-9DQWhedMg66pDLFRcbkQ_MBfdMG9G",
   STORAGE_BUCKET: "school-media"
 };
