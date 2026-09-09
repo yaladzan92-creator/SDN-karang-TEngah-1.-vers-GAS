@@ -20,11 +20,11 @@
   <!-- 1. TOP INFORMATION BAR -->
   <header class="topbar">
     <div class="container topbar-inner">
-      <div>
+      <div class="topbar-left">
         <span class="topbar-badge">RESMI</span>
-        <span>SD NEGERI KARANG TENGAH 1 — KOTA TANGERANG</span>
+        <span class="topbar-name">SD NEGERI KARANG TENGAH 1 — KOTA TANGERANG</span>
       </div>
-      <div id="topbarMeta">
+      <div id="topbarMeta" class="topbar-right">
         NPSN: 20607151 · Akreditasi A · Kota Tangerang
       </div>
     </div>
@@ -35,13 +35,15 @@
     <div class="container nav">
       <a class="brand" href="#home" id="brandLink">
         <img class="city-logo brand-logo" id="brandLogo" src="assets/brand-kt1.svg" alt="Lambang SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/brand-kt1.svg'">
-        <div>
+        <div class="brand-text">
           <strong id="brandName">SDN KARANG TENGAH 1</strong>
-          <span id="brandSubtitle">Kecamatan Karang Tengah · Kota Tangerang</span>
+          <span id="brandSubtitle">Kota Tangerang</span>
         </div>
       </a>
-      <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka Menu Navigasi">☰</button>
-      <nav id="navMenu">
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka Menu Navigasi" aria-expanded="false" aria-controls="navMenu">
+        <span class="menu-icon" aria-hidden="true">☰</span>
+      </button>
+      <nav id="navMenu" aria-label="Menu Utama">
         <a href="#home">Beranda</a>
         <a href="#profil">Profil</a>
         <a href="#program">Program</a>
@@ -62,7 +64,7 @@
           <div class="hero-overlay"></div>
           <div class="hero-copy">
             <span class="badge">★ SEKOLAH DASAR NEGERI</span>
-            <h1 id="heroSchool">SD NEGERI KARANG TENGAH 1</h1>
+            <h1 id="heroSchool"><span class="hero-title-line">SD NEGERI</span> <span class="hero-title-line">KARANG TENGAH 1</span></h1>
             <p class="hero-subtitle" id="heroSubtitle">Sekolah Dasar Negeri di Kecamatan Karang Tengah, Kota Tangerang.</p>
             <p class="hero-desc" id="heroDescription">Ruang belajar yang aman, aktif, dan mendukung tumbuh kembang peserta didik.</p>
             <div class="actions">
@@ -79,28 +81,28 @@
       <div class="container">
         <div class="facts-grid">
           <article>
-            <strong id="statNpsn">20607151</strong>
-            <span>NPSN</span>
-          </article>
-          <article>
-            <strong id="statStatus">Negeri</strong>
-            <span>Status</span>
-          </article>
-          <article>
             <strong id="statStudents">345</strong>
-            <span>Peserta Didik</span>
+            <span>Siswa</span>
           </article>
           <article>
             <strong id="statStaff">20</strong>
-            <span>Guru &amp; Tendik</span>
+            <span>Guru / Tendik</span>
+          </article>
+          <article>
+            <strong id="statRombel">12</strong>
+            <span>Rombel</span>
           </article>
           <article>
             <strong id="statAccreditation">A</strong>
             <span>Akreditasi</span>
           </article>
           <article>
-            <strong id="statRombel">12</strong>
-            <span>Rombel</span>
+            <strong id="statNpsn" class="stat-npsn">20607151</strong>
+            <span>NPSN</span>
+          </article>
+          <article>
+            <strong id="statStatus">Negeri</strong>
+            <span>Status</span>
           </article>
         </div>
         <small class="source-note">Data dapat diperbarui oleh Admin sesuai data resmi sekolah.</small>

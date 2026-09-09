@@ -66,8 +66,12 @@
     const data = Object.assign({}, verifiedProfile, p || {});
 
     setElementText("brandName", data.name);
-    setElementText("brandSubtitle", `Kecamatan Karang Tengah · ${data.city || "Kota Tangerang"}`);
-    setElementText("heroSchool", data.name);
+    setElementText("brandSubtitle", `Kota Tangerang`);
+    
+    const heroSchoolEl = document.getElementById("heroSchool");
+    if (heroSchoolEl) {
+      heroSchoolEl.innerHTML = '<span class="hero-title-line">SD NEGERI</span> <span class="hero-title-line">KARANG TENGAH 1</span>';
+    }
     setElementText("heroSubtitle", data.hero_subtitle || verifiedProfile.hero_subtitle);
     setElementText("heroDescription", data.hero_description || verifiedProfile.hero_description);
 
@@ -225,8 +229,8 @@
     }
     list.innerHTML = items.map(a => `
       <article class="announcement">
-        <strong>${escapeHtml(a.date_label || (a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : 'Pemberitahuan'))}</strong>
-        <div>
+        <div class="announcement-badge">${escapeHtml(a.date_label || (a.published_at ? new Date(a.published_at).toLocaleDateString('id-ID') : 'Pemberitahuan'))}</div>
+        <div class="announcement-body">
           <b>${escapeHtml(a.title)}</b>
           <p>${escapeHtml(a.body || a.content || '')}</p>
         </div>
@@ -336,28 +340,47 @@
     setElementText("rombelTotalStudents", totalStudents || 345);
 
     wrap.innerHTML = `
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Rombongan Belajar</th>
-            <th>Tingkat Kelas</th>
-            <th>Tahun Ajaran</th>
-            <th>Semester</th>
-            <th>Jumlah Peserta Didik</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rombels.map(r => `
+      <!-- Desktop Table View (> 700px) -->
+      <div class="rombel-desktop-table">
+        <table class="data-table">
+          <thead>
             <tr>
-              <td><strong>${escapeHtml(r.name)}</strong></td>
-              <td>${escapeHtml(r.grade || '-')}</td>
-              <td>${escapeHtml(r.academic_year || '2025/2026')}</td>
-              <td>${escapeHtml(r.semester || 'Genap')}</td>
-              <td><strong>${escapeHtml(String(r.student_count || 0))} Siswa</strong></td>
+              <th>Rombongan Belajar</th>
+              <th>Tingkat Kelas</th>
+              <th>Tahun Ajaran</th>
+              <th>Semester</th>
+              <th>Jumlah Peserta Didik</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${rombels.map(r => `
+              <tr>
+                <td><strong>${escapeHtml(r.name)}</strong></td>
+                <td>${escapeHtml(r.grade || '-')}</td>
+                <td>${escapeHtml(r.academic_year || '2025/2026')}</td>
+                <td>${escapeHtml(r.semester || 'Genap')}</td>
+                <td><strong>${escapeHtml(String(r.student_count || 0))} Siswa</strong></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Option A: Cards per Rombel (<= 700px) -->
+      <div class="rombel-mobile-cards" aria-label="Daftar Rombongan Belajar">
+        ${rombels.map(r => `
+          <article class="rombel-card">
+            <div class="rombel-card-header">
+              <span class="rombel-card-title">${escapeHtml(r.grade ? r.grade + ' · ' : '')}Kelas ${escapeHtml(r.name)}</span>
+              <span class="rombel-card-badge">${escapeHtml(String(r.student_count || 0))} Peserta Didik</span>
+            </div>
+            <div class="rombel-card-meta">
+              <span>Tahun: ${escapeHtml(r.academic_year || '2025/2026')}</span>
+              <span>Semester: ${escapeHtml(r.semester || 'Genap')}</span>
+            </div>
+          </article>
+        `).join("")}
+      </div>
     `;
   }
 
@@ -485,19 +508,56 @@
     const yearEl = document.getElementById("year");
     if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-    // Mobile nav toggle
+    // Mobile nav toggle with full accessibility
     const menuBtn = document.getElementById("menuBtn");
     const navMenu = document.getElementById("navMenu");
     if (menuBtn && navMenu) {
-      menuBtn.addEventListener("click", () => {
-        navMenu.classList.toggle("open");
+      const setNavState = (isOpen) => {
+        if (isOpen) {
+          navMenu.classList.add("open");
+          menuBtn.setAttribute("aria-expanded", "true");
+          menuBtn.setAttribute("aria-label", "Tutup Menu Navigasi");
+          const icon = menuBtn.querySelector(".menu-icon");
+          if (icon) icon.textContent = "✕";
+          else menuBtn.textContent = "✕";
+        } else {
+          navMenu.classList.remove("open");
+          menuBtn.setAttribute("aria-expanded", "false");
+          menuBtn.setAttribute("aria-label", "Buka Menu Navigasi");
+          const icon = menuBtn.querySelector(".menu-icon");
+          if (icon) icon.textContent = "☰";
+          else menuBtn.textContent = "☰";
+        }
+      };
+
+      menuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = navMenu.classList.contains("open");
+        setNavState(!isOpen);
       });
+
       navMenu.querySelectorAll("a").forEach(a => {
         a.addEventListener("click", () => {
-          navMenu.classList.remove("open");
+          setNavState(false);
         });
       });
+
+      // Close when pressing Escape
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && navMenu.classList.contains("open")) {
+          setNavState(false);
+          menuBtn.focus();
+        }
+      });
+
+      // Close on outside click
+      document.addEventListener("click", (e) => {
+        if (navMenu.classList.contains("open") && !navMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+          setNavState(false);
+        }
+      });
     }
+
 
     loadData();
   });

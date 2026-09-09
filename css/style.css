@@ -27,16 +27,27 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   font-family: 'Plus Jakarta Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text-main);
   background-color: var(--bg-page);
   line-height: 1.65;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-light);
+  outline-offset: 2px;
 }
 
 a {
@@ -44,13 +55,18 @@ a {
   color: inherit;
 }
 
+a, p, span, h1, h2, h3, h4, strong {
+  overflow-wrap: break-word;
+}
+
 img {
   display: block;
   max-width: 100%;
+  height: auto;
 }
 
 .container {
-  width: min(calc(100% - 40px), 1180px);
+  width: min(calc(100% - 32px), 1180px);
   margin: 0 auto;
 }
 
@@ -96,35 +112,39 @@ img {
 }
 
 .nav {
-  min-height: 82px;
+  min-height: 76px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
+  position: relative;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  min-height: 44px;
 }
 
 .city-logo {
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   object-fit: contain;
   flex-shrink: 0;
 }
 
+.brand-text strong,
 .brand strong {
   display: block;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--primary-dark);
   letter-spacing: 0.01em;
   line-height: 1.2;
 }
 
+.brand-text span,
 .brand span {
   display: block;
   font-size: 12px;
@@ -144,9 +164,11 @@ img {
 
 .nav nav a {
   color: var(--primary-dark);
-  padding: 6px 4px;
+  padding: 8px 6px;
   transition: color 0.15s ease;
   position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav nav a:hover {
@@ -156,7 +178,7 @@ img {
 .nav-cta {
   background: var(--primary);
   color: #fff !important;
-  padding: 8px 16px !important;
+  padding: 8px 18px !important;
   border-radius: 8px;
   transition: background 0.2s ease !important;
 }
@@ -167,13 +189,34 @@ img {
 
 .menu-btn {
   display: none;
-  background: transparent;
+  background: #ffffff;
   border: 1px solid var(--border-line);
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 20px;
   color: var(--primary-dark);
+  font-size: 22px;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 8px;
   cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.menu-btn:hover {
+  background: #f1f5f9;
+  border-color: var(--border-card);
+}
+
+.menu-icon {
+  display: block;
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* HERO SECTION */
@@ -237,6 +280,10 @@ img {
   letter-spacing: -0.03em;
   margin: 0 0 16px;
   color: #ffffff;
+}
+
+.hero-title-line {
+  display: block;
 }
 
 .hero-subtitle {
@@ -349,6 +396,11 @@ img {
   font-weight: 900;
   color: var(--primary-dark);
   line-height: 1.2;
+}
+
+.stat-npsn {
+  font-size: 22px !important;
+  letter-spacing: -0.02em;
 }
 
 .facts span {
@@ -626,34 +678,48 @@ img {
 }
 
 .announcement {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: var(--radius-md);
-  padding: 22px;
-  align-items: center;
+  padding: 20px 24px;
 }
 
+.announcement-badge,
 .announcement strong {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   color: #fde047;
+  background: rgba(253, 224, 71, 0.14);
+  border: 1px solid rgba(253, 224, 71, 0.3);
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-block;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.announcement b {
+.announcement-body {
+  flex-grow: 1;
+}
+
+.announcement b,
+.announcement-body b {
   display: block;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   color: #ffffff;
   margin-bottom: 4px;
 }
 
-.announcement p {
+.announcement p,
+.announcement-body p {
   margin: 0;
   color: rgba(255, 255, 255, 0.85);
   font-size: 14px;
+  line-height: 1.5;
 }
 
 /* PRESTASI */
@@ -800,6 +866,60 @@ img {
 
 .data-table td strong {
   color: var(--primary-dark);
+}
+
+/* ROMBEL MOBILE CARDS (Option A) */
+.rombel-desktop-table {
+  display: block;
+}
+
+.rombel-mobile-cards {
+  display: none;
+}
+
+.rombel-card {
+  background: #ffffff;
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rombel-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.rombel-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.rombel-card-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--accent-teal-light);
+  color: var(--accent-teal);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rombel-card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-line);
+  padding-top: 8px;
 }
 
 /* SPMB BANNER */
@@ -1042,84 +1162,383 @@ footer {
   color: #ffffff;
 }
 
-/* RESPONSIVE QUERIES */
+/* RESPONSIVE QUERIES & MOBILE-FIRST OPTIMIZATION */
+
+/* 1. TABLET LANDSCAPE & DESKTOP (<= 1024px) */
 @media (max-width: 1024px) {
-  .facts-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
   .cards.three {
     grid-template-columns: repeat(2, 1fr);
   }
   .gallery {
     grid-template-columns: repeat(2, 1fr);
   }
+  .facts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-@media (max-width: 900px) {
+/* 2. TABLET PORTRAIT & MOBILE (<= 768px) */
+@media (max-width: 768px) {
+  /* Header & Navigation (Q1) */
+  .nav {
+    min-height: 64px;
+  }
+  .brand {
+    gap: 10px;
+  }
+  .city-logo {
+    width: 40px;
+    height: 40px;
+  }
+  .brand-text strong,
+  .brand strong {
+    font-size: 15px;
+  }
+  .brand-text span,
+  .brand span {
+    font-size: 11px;
+  }
+  .menu-btn {
+    display: inline-flex;
+  }
   .nav nav {
     display: none;
     position: absolute;
-    top: 84px;
-    left: 16px;
-    right: 16px;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
     background: #ffffff;
     border: 1px solid var(--border-line);
-    border-radius: var(--radius-md);
-    padding: 20px;
+    border-radius: 14px;
+    padding: 12px;
     flex-direction: column;
-    box-shadow: var(--shadow-lg);
-    z-index: 150;
+    box-shadow: 0 16px 36px rgba(13, 40, 66, 0.16);
+    z-index: 200;
+    gap: 4px;
   }
   .nav nav.open {
     display: flex;
   }
-  .menu-btn {
-    display: block;
+  .nav nav a {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 8px;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
   }
-  .split, .vision-grid, .contact-grid {
-    grid-template-columns: 1fr;
+  .nav nav a:hover,
+  .nav nav a:focus-visible {
+    background: #f8fafc;
+    color: var(--primary);
   }
-  .image-frame {
-    height: 320px;
+  .nav nav a:last-child {
+    border-bottom: 0;
   }
-  .cta-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 32px;
+  .nav-cta {
+    margin-top: 6px;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
-  .rombel-summary {
-    grid-template-columns: 1fr;
-  }
-}
 
-@media (max-width: 640px) {
-  .container {
-    width: calc(100% - 24px);
-  }
-  .topbar-inner {
-    font-size: 11px;
+  /* Hero Section (Q3) */
+  .hero {
+    padding: 16px 0 24px;
   }
   .hero-card {
-    min-height: 520px;
-  }
-  .hero-copy {
-    padding: 30px 20px;
+    min-height: 480px;
+    max-height: 620px;
+    border-radius: 16px;
   }
   .hero-overlay {
-    background: linear-gradient(0deg, rgba(8, 28, 48, 0.96) 0%, rgba(8, 38, 64, 0.75) 100%);
+    background: linear-gradient(180deg, rgba(8, 28, 48, 0.88) 0%, rgba(8, 38, 64, 0.94) 55%, rgba(13, 40, 66, 0.98) 100%);
+  }
+  .hero-copy {
+    padding: 32px 18px 28px;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 8vw, 40px);
+    line-height: 1.12;
+    margin: 0 0 12px;
+  }
+  .hero-subtitle {
+    font-size: 15px;
+    line-height: 1.4;
+    margin: 0 0 8px;
+  }
+  .hero-desc {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 20px;
+  }
+  .actions {
+    gap: 10px;
+  }
+  .actions .btn {
+    min-height: 46px;
+    flex: 1 1 160px;
+    text-align: center;
+    justify-content: center;
+    padding: 0 16px;
+  }
+
+  /* Statistics Grid (Q4: 2x3 Grid) */
+  .facts {
+    margin-top: 0;
+    margin-bottom: 16px;
   }
   .facts-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
-  .cards.three, .cards.two, .gallery {
-    grid-template-columns: 1fr;
+  .facts article {
+    padding: 14px 10px;
+    border-radius: 10px;
   }
-  .announcement {
+  .facts strong {
+    font-size: clamp(22px, 5vw, 30px);
+    line-height: 1.15;
+  }
+  .stat-npsn {
+    font-size: clamp(17px, 4.2vw, 22px) !important;
+  }
+  .facts span {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  /* Sections Base Spacing & Layout (Q5, Q6) */
+  .section {
+    padding: 52px 0;
+  }
+  .section-head {
+    margin-bottom: 24px;
+  }
+  .section h2 {
+    font-size: clamp(24px, 6vw, 32px);
+    line-height: 1.2;
+    margin: 6px 0 10px;
+  }
+  .split, .vision-grid, .contact-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 28px;
+  }
+  .image-frame {
+    height: 240px;
+    border-radius: 14px;
+  }
+
+  /* SPMB CTA (Q11) */
+  .cta-spmb {
+    margin: 20px auto;
+  }
+  .cta-inner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+    padding: 28px 18px;
+    gap: 18px;
+  }
+  .cta-spmb h2 {
+    font-size: clamp(22px, 5.5vw, 28px);
+    margin: 4px 0 8px;
+  }
+  .cta-spmb p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+  .cta-spmb .btn.gold {
+    width: 100%;
+    min-height: 48px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Footer (Q13) */
+  footer {
+    padding: 40px 0 32px;
   }
   .footer-grid {
     flex-direction: column;
     align-items: flex-start;
+    gap: 20px;
+  }
+  .footer-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+  .admin-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    width: 100%;
+  }
+}
+
+/* 3. ROMBEL & CARDS CONSTRAINTS (<= 700px) */
+@media (max-width: 700px) {
+  /* Cards Grid (Q7) */
+  .cards.three, .cards.two {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .content-card img {
+    height: 190px;
+  }
+
+  /* Rombel Option A (Q9) */
+  .rombel-desktop-table {
+    display: none;
+  }
+  .rombel-mobile-cards {
+    display: grid;
+    gap: 10px;
+  }
+}
+
+/* 4. COMPACT MOBILE (<= 600px) */
+@media (max-width: 600px) {
+  .container {
+    width: calc(100% - 28px);
+  }
+
+  /* Topbar (Q2) */
+  .topbar {
+    padding: 4px 0;
+  }
+  .topbar-inner {
+    min-height: 32px;
+    justify-content: center;
+    text-align: center;
+  }
+  .topbar-left {
+    display: none;
+  }
+  .topbar-right {
+    font-size: 11.5px;
+    font-weight: 700;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Profile rows (Q5) */
+  .profile-list div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+    padding: 10px 0;
+  }
+  .profile-list strong {
+    text-align: left;
+  }
+
+  /* Gallery (Q8) */
+  .gallery {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .gallery figure {
+    height: 210px;
+  }
+
+  /* Announcements (Q10) */
+  .announcement {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 18px 16px;
+  }
+
+  /* Rombel Summary (Q9) */
+  .rombel-summary {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .rombel-stat {
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+  .rombel-stat strong {
+    font-size: 22px;
+    order: 2;
+  }
+  .rombel-stat span {
+    font-size: 13px;
+    margin: 0;
+    order: 1;
+  }
+
+  /* Contact (Q12) */
+  #mapLink {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+    text-align: center;
+  }
+  .social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .social-link {
+    min-height: 44px;
+    padding: 8px 14px;
+  }
+
+  /* Empty Notices (Q14) */
+  .empty-notice {
+    padding: 22px 16px;
+  }
+  .empty-notice .notice-icon {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+  .empty-notice h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+  .empty-notice p {
+    font-size: 13.5px;
+  }
+}
+
+/* 5. SMALL SMARTPHONES (<= 389px: 360px, 375px) */
+@media (max-width: 389px) {
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .actions .btn {
+    width: 100%;
+    flex: none;
+  }
+  .facts article {
+    padding: 12px 6px;
+  }
+  .facts strong {
+    font-size: 20px;
+  }
+  .stat-npsn {
+    font-size: 15.5px !important;
+  }
+  .brand-text strong,
+  .brand strong {
+    font-size: 14px;
+  }
+  .brand-text span,
+  .brand span {
+    font-size: 10.5px;
   }
 }
