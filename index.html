@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDN Karang Tengah 1 | Kota Tangerang</title>
+  <meta name="description" content="Website Resmi SD Negeri Karang Tengah 1, Kecamatan Karang Tengah, Kota Tangerang. Informasi profil sekolah, rombongan belajar, prestasi, pengumuman, dan SPMB.">
+  <meta property="og:title" content="SDN Karang Tengah 1 | Kota Tangerang">
+  <meta property="og:description" content="Website Resmi SD Negeri Karang Tengah 1, Kecamatan Karang Tengah, Kota Tangerang. Informasi profil sekolah, rombongan belajar, prestasi, pengumuman, dan SPMB.">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="assets/brand-kt1.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="js/config.js"></script>
+  <script defer src="js/supabase-client.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body>
+
+  <!-- 1. TOP INFORMATION BAR -->
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <span class="topbar-badge">RESMI</span>
+        <span>SD NEGERI KARANG TENGAH 1 — KOTA TANGERANG</span>
+      </div>
+      <div id="topbarMeta">
+        NPSN: 20607151 · Akreditasi A · Kurikulum Merdeka
+      </div>
+    </div>
+  </header>
+
+  <!-- 2. HEADER SEKOLAH -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home" id="brandLink">
+        <img class="city-logo brand-logo" id="brandLogo" src="assets/brand-kt1.svg" alt="Lambang SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/brand-kt1.svg'">
+        <div>
+          <strong id="brandName">SDN KARANG TENGAH 1</strong>
+          <span id="brandSubtitle">Kecamatan Karang Tengah · Kota Tangerang</span>
+        </div>
+      </a>
+      <button class="menu-btn" id="menuBtn" type="button" aria-label="Buka Menu Navigasi">☰</button>
+      <nav id="navMenu">
+        <a href="#home">Beranda</a>
+        <a href="#profil">Profil</a>
+        <a href="#identitas">Identitas</a>
+        <a href="#program">Program</a>
+        <a href="#berita">Berita</a>
+        <a href="#pengumuman">Pengumuman</a>
+        <a href="#prestasi">Prestasi</a>
+        <a href="#galeri">Galeri</a>
+        <a href="#eskul">Ekstrakurikuler</a>
+        <a href="#rombel">Rombel</a>
+        <a href="#spmb" class="nav-cta">SPMB</a>
+        <a href="#kontak">Kontak</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 3. HERO SEKOLAH -->
+    <section class="hero" id="home">
+      <div class="container">
+        <div class="hero-card">
+          <img id="heroImg" class="hero-img" src="https://file.data.kemendikdasmen.go.id/sekolahkita/20/2060/20607151-13.jpg" alt="Lingkungan Belajar SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/school-hero-placeholder.svg'">
+          <div class="hero-overlay"></div>
+          <div class="hero-copy">
+            <span class="badge">★ SEKOLAH DASAR NEGERI</span>
+            <h1 id="heroSchool">SD NEGERI KARANG TENGAH 1</h1>
+            <p class="hero-subtitle" id="heroSubtitle">Sekolah Dasar Negeri di Kecamatan Karang Tengah, Kota Tangerang.</p>
+            <p class="hero-desc" id="heroDescription">Ruang belajar yang aman, aktif, dan mendukung tumbuh kembang peserta didik.</p>
+            <div class="actions">
+              <a class="btn gold" href="#profil">Profil Sekolah</a>
+              <a class="btn glass" href="#spmb">Informasi SPMB</a>
+              <a class="btn secondary" href="#kontak">Hubungi Sekolah</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STATISTIK SEKOLAH -->
+    <section class="facts" aria-label="Statistik Sekolah">
+      <div class="container">
+        <div class="facts-grid">
+          <article>
+            <strong id="statNpsn">20607151</strong>
+            <span>NPSN</span>
+          </article>
+          <article>
+            <strong id="statStatus">Negeri</strong>
+            <span>Status Sekolah</span>
+          </article>
+          <article>
+            <strong id="statStudents">345</strong>
+            <span>Peserta Didik</span>
+          </article>
+          <article>
+            <strong id="statStaff">20</strong>
+            <span>Guru &amp; Tendik</span>
+          </article>
+          <article>
+            <strong id="statAccreditation">A</strong>
+            <span>Akreditasi</span>
+          </article>
+          <article>
+            <strong id="statRombel">12</strong>
+            <span>Rombel</span>
+          </article>
+        </div>
+        <small class="source-note">Data referensi awal Dapodik / Kemendikdasmen. Terbuka untuk disinkronkan &amp; diperbarui oleh Admin.</small>
+      </div>
+    </section>
+
+    <!-- 5. PROFIL SINGKAT -->
+    <section class="section" id="profil">
+      <div class="container split">
+        <div class="image-frame">
+          <img id="profilePhoto" src="assets/school-profile-placeholder.svg" alt="Gedung SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/school-profile-placeholder.svg'">
+        </div>
+        <div>
+          <span class="eyebrow">Profil Singkat</span>
+          <h2 id="profileTitle">Pendidikan Berkualitas Berlandaskan Karakter</h2>
+          <p class="profile-desc" id="profileDescription">SD Negeri Karang Tengah 1 adalah institusi pendidikan dasar negeri di bawah naungan Dinas Pendidikan Kota Tangerang, berkomitmen menyelenggarakan kegiatan belajar mengajar yang mendidik, ramah anak, dan berkualitas.</p>
+          <div class="profile-list" id="profileInfo">
+            <div><span>Nama Sekolah</span><strong id="infoSchoolName">SD NEGERI KARANG TENGAH 1</strong></div>
+            <div><span>NPSN</span><strong id="infoNpsn">20607151</strong></div>
+            <div><span>Bentuk Pendidikan</span><strong>Sekolah Dasar (SD)</strong></div>
+            <div><span>Status Sekolah</span><strong id="infoStatus">Negeri</strong></div>
+            <div><span>Status Akreditasi</span><strong id="infoAccreditation">A</strong></div>
+            <div><span>Alamat</span><strong id="infoAddress">Jalan Raden Saleh No. 118, Kelurahan Karang Tengah, Kecamatan Karang Tengah, Kota Tangerang, Banten 15157</strong></div>
+            <div><span>Email Resmi</span><strong id="infoEmail">sdnkarteng1@gmail.com</strong></div>
+            <div><span>Website Sebelumnya</span><strong id="infoOldWeb">sdnkarteng1.blogspot.com</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. SAMBUTAN / IDENTITAS SEKOLAH (Visi & Misi) -->
+    <section class="section soft" id="identitas">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Identitas &amp; Visi Misi</span>
+          <h2>Arah Pendidikan Sekolah</h2>
+          <p class="subtle">Komitmen SDN Karang Tengah 1 dalam mencerdaskan dan membentuk karakter penerus bangsa.</p>
+        </div>
+        <div class="vision-grid">
+          <div class="vision-card" id="visionBox">
+            <h3>Visi Sekolah</h3>
+            <div id="visionText" class="notice-placeholder">
+              Rumusan Visi resmi SDN Karang Tengah 1 sedang disinkronkan dan dapat diperbarui oleh Admin Sekolah melalui panel pengelolaan kurikulum operasional satuan pendidikan (KOSP).
+            </div>
+          </div>
+          <div class="vision-card" id="missionBox">
+            <h3>Misi Sekolah</h3>
+            <div id="missionText" class="notice-placeholder">
+              Rumusan Misi resmi SDN Karang Tengah 1 sedang disinkronkan dan dapat diperbarui oleh Admin Sekolah melalui panel pengelolaan kurikulum operasional satuan pendidikan (KOSP).
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. PROGRAM SEKOLAH -->
+    <section class="section" id="program">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Program Unggulan &amp; Pembiasaan</span>
+          <h2>Aktivitas Belajar &amp; Pembentukan Karakter</h2>
+          <p class="subtle">Bidang fokus pembelajaran dan pembiasaan positif di lingkungan SDN Karang Tengah 1.</p>
+        </div>
+        <div class="cards three" id="programList">
+          <article class="feature">
+            <div class="num">01</div>
+            <h3>Literasi &amp; Numerasi</h3>
+            <p>Penguatan kemampuan membaca pemahaman, perpustakaan kelas, dan pengenalan konsep numerasi terapan sejak dini.</p>
+          </article>
+          <article class="feature">
+            <div class="num">02</div>
+            <h3>Karakter &amp; Budi Pekerti</h3>
+            <p>Pembiasaan senyum salam sapa (5S), doa bersama, kegiatan keagamaan, dan penanaman nilai Akhlakul Karimah.</p>
+          </article>
+          <article class="feature">
+            <div class="num">03</div>
+            <h3>Peduli Lingkungan Sehat</h3>
+            <p>Edukasi kebersihan kelas, pemilahan sampah, penghijauan pekarangan sekolah, dan pembiasaan cuci tangan higienis.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. BERITA TERBARU -->
+    <section class="section soft" id="berita">
+      <div class="container">
+        <div class="section-head row-head">
+          <div>
+            <span class="eyebrow">Warta Sekolah</span>
+            <h2>Kabar &amp; Kegiatan Terbaru</h2>
+            <p class="subtle">Dokumentasi dan informasi kegiatan akademik maupun non-akademik di SDN Karang Tengah 1.</p>
+          </div>
+        </div>
+        <div class="cards three" id="newsList">
+          <!-- News items loaded dynamically via js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. PENGUMUMAN -->
+    <section class="section dark" id="pengumuman">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow light">Pemberitahuan Resmi</span>
+          <h2>Pengumuman Penting</h2>
+          <p class="subtle">Informasi penting untuk peserta didik, dewan guru, dan orang tua/wali murid.</p>
+        </div>
+        <div class="announcement-list" id="announcementList">
+          <!-- Announcements loaded dynamically via js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. PRESTASI -->
+    <section class="section" id="prestasi">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Pencapaian Siswa</span>
+          <h2>Prestasi &amp; Kebanggaan Sekolah</h2>
+          <p class="subtle">Apresiasi dedikasi peserta didik SDN Karang Tengah 1 dalam berbagai ajang bakat dan kompetisi.</p>
+        </div>
+        <div class="cards two" id="achievementList">
+          <!-- Achievements loaded dynamically via js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. GALERI DOKUMENTASI -->
+    <section class="section soft" id="galeri">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Dokumentasi Visual</span>
+          <h2>Galeri Kegiatan Sekolah</h2>
+          <p class="subtle">Momen kegiatan belajar, upacara bendera, dan lingkungan belajar peserta didik.</p>
+        </div>
+        <div class="gallery" id="galleryList">
+          <!-- Gallery photos loaded dynamically via js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. EKSTRAKURIKULER -->
+    <section class="section" id="eskul">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Pengembangan Bakat &amp; Minat</span>
+          <h2>Kegiatan Ekstrakurikuler</h2>
+          <p class="subtle">Wadah kreativitas, keterampilan fisik, kepemimpinan, dan kecerdasan sosial di luar jam kelas.</p>
+        </div>
+        <div class="cards three" id="eskulList">
+          <!-- Eskul cards loaded dynamically via js/app.js -->
+        </div>
+
+        <div style="margin-top: 48px;">
+          <div class="section-head">
+            <span class="eyebrow">Dokumentasi Eskul</span>
+            <h2>Aktivitas &amp; Laporan Latihan</h2>
+          </div>
+          <div class="cards three" id="eskulActivityList">
+            <!-- Eskul activities loaded dynamically via js/app.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. DATA ROMBEL -->
+    <section class="section soft" id="rombel">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Struktur Akademik</span>
+          <h2>Data Rombongan Belajar (Rombel)</h2>
+          <p class="subtle">Sebaran peserta didik pada setiap tingkatan rombongan belajar SDN Karang Tengah 1.</p>
+        </div>
+        <div class="rombel-summary">
+          <div class="rombel-stat">
+            <strong>12</strong>
+            <span>Total Rombongan Belajar</span>
+          </div>
+          <div class="rombel-stat">
+            <strong id="rombelTotalStudents">345</strong>
+            <span>Total Peserta Didik</span>
+          </div>
+          <div class="rombel-stat">
+            <strong>Kelas 1 s/d 6</strong>
+            <span>Jenjang Pendidikan Dasar</span>
+          </div>
+        </div>
+        <div class="table-wrap" id="rombelList">
+          <!-- Table loaded dynamically via js/app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. DOKUMEN & JADWAL -->
+    <section class="section" id="dokumen-jadwal">
+      <div class="container">
+        <div class="split">
+          <div>
+            <div class="section-head">
+              <span class="eyebrow">Agenda Pembelajaran</span>
+              <h2>Jadwal &amp; Kalender</h2>
+              <p class="subtle">Agenda dan waktu kegiatan belajar mengajar.</p>
+            </div>
+            <div id="scheduleList" class="cards">
+              <!-- Schedules loaded dynamically via js/app.js -->
+            </div>
+          </div>
+          <div>
+            <div class="section-head">
+              <span class="eyebrow">Unduhan Publik</span>
+              <h2>Dokumen &amp; Surat</h2>
+              <p class="subtle">Berkas kurikulum, kalender pendidikan, dan formulir resmi.</p>
+            </div>
+            <div id="documentList" class="cards">
+              <!-- Documents loaded dynamically via js/app.js -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. INFORMASI SPMB -->
+    <section class="section cta-spmb" id="spmb">
+      <div class="container cta-inner">
+        <div>
+          <span class="badge" style="background: rgba(212,159,43,0.3); border-color: #d49f2b; color: #fde047;">SPMB KOTA TANGERANG</span>
+          <h2 id="spmbTitle">Penerimaan Peserta Didik Baru (SPMB)</h2>
+          <p id="spmbDescription">Informasi jalur pendaftaran, persyaratan berkas, daya tampung rombel, zonasi, dan jadwal resmi Penerimaan Peserta Didik Baru SDN Karang Tengah 1 mengacu pada portal resmi SPMB Kota Tangerang.</p>
+        </div>
+        <div>
+          <a class="btn gold" id="spmbLink" href="https://spmb.tangerangkota.go.id/" target="_blank" rel="noopener noreferrer">Buka Portal SPMB</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. KONTAK + GOOGLE MAPS + SOSIAL MEDIA -->
+    <section class="section" id="kontak">
+      <div class="container contact-grid">
+        <div>
+          <span class="eyebrow">Lokasi &amp; Komunikasi</span>
+          <h2>Hubungi Kami</h2>
+          <p class="subtle">SD Negeri Karang Tengah 1 senantiasa terbuka menyambut komunikasi dari orang tua/wali dan masyarakat.</p>
+
+          <div class="contact-details">
+            <div class="contact-item">
+              <div class="contact-icon">📍</div>
+              <div>
+                <strong>Alamat Sekolah</strong>
+                <p id="contactAddress" style="margin: 4px 0 0;">Jalan Raden Saleh No. 118, Kelurahan Karang Tengah, Kecamatan Karang Tengah, Kota Tangerang, Banten 15157</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">✉️</div>
+              <div>
+                <strong>Email Resmi</strong>
+                <p style="margin: 4px 0 0;"><a id="contactEmail" href="mailto:sdnkarteng1@gmail.com" style="color: var(--primary); font-weight: 700;">sdnkarteng1@gmail.com</a></p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">🌐</div>
+              <div>
+                <strong>Arsip Blogspot Lama</strong>
+                <p style="margin: 4px 0 0;"><a id="contactOldWeb" href="http://sdnkarteng1.blogspot.com" target="_blank" rel="noopener noreferrer" style="color: var(--primary); font-weight: 700;">http://sdnkarteng1.blogspot.com</a></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <a class="btn primary" id="mapLink" href="https://www.google.com/maps/search/?api=1&query=SDN+Karang+Tengah+1+Kota+Tangerang" target="_blank" rel="noopener noreferrer">Buka di Google Maps ↗</a>
+          </div>
+
+          <!-- 17. SOSIAL MEDIA -->
+          <div class="social-block">
+            <strong style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Kanal Media Sosial Resmi</strong>
+            <div class="social-links" id="socialLinks">
+              <!-- Loaded dynamically via js/app.js -->
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="info-card">
+            <h3>Identitas Resmi Satuan Pendidikan</h3>
+            <div id="contactInfo">
+              <div><span>NPSN</span><strong>20607151</strong></div>
+              <div><span>Bentuk Pendidikan</span><strong>Sekolah Dasar</strong></div>
+              <div><span>Status Sekolah</span><strong>Negeri</strong></div>
+              <div><span>Kecamatan</span><strong>Karang Tengah</strong></div>
+              <div><span>Kota / Kabupaten</span><strong>Kota Tangerang</strong></div>
+              <div><span>Provinsi</span><strong>Banten</strong></div>
+              <div><span>Kode Pos</span><strong>15157</strong></div>
+              <div><span>Penyelenggaraan</span><strong>Pagi / 6 Hari</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 18. FOOTER -->
+  <footer>
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <img class="city-logo" id="footerLogo" src="assets/brand-kt1.svg" alt="Lambang SDN Karang Tengah 1" onerror="this.onerror=null;this.src='assets/brand-kt1.svg'">
+        <div>
+          <strong id="footerSchool">SD NEGERI KARANG TENGAH 1</strong>
+          <p id="footerCity">Kecamatan Karang Tengah · Kota Tangerang · Banten 15157</p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <p class="copyright">© <span id="year">2026</span> SDN Karang Tengah 1. Portal Informasi Resmi.</p>
+        <a class="admin-link" href="admin/">Portal Admin ↗</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

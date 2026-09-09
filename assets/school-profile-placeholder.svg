@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f3458" />
+      <stop offset="100%" stop-color="#175249" />
+    </linearGradient>
+    <linearGradient id="goldAcc" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d372" />
+      <stop offset="100%" stop-color="#d49f2b" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="600" fill="url(#bgGrad)" />
+
+  <!-- Geometric Pattern Accents -->
+  <circle cx="400" cy="280" r="230" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2" />
+  <circle cx="400" cy="280" r="190" fill="none" stroke="url(#goldAcc)" stroke-width="1.5" stroke-dasharray="8,6" opacity="0.4" />
+  <circle cx="400" cy="280" r="150" fill="rgba(255,255,255,0.04)" />
+
+  <!-- Large Central Education Iconography -->
+  <!-- Open Book Base -->
+  <g transform="translate(400, 290)">
+    <path d="M 0,20 C -60,5 -140,15 -180,45 C -180,-40 -110,-55 0,-30 Z" fill="#ffffff" />
+    <path d="M 0,40 C -60,25 -140,35 -180,65 C -180,-20 -110,-35 0,-10 Z" fill="#e2e8f0" />
+    <path d="M 0,20 C 60,5 140,15 180,45 C 180,-40 110,-55 0,-30 Z" fill="#ffffff" />
+    <path d="M 0,40 C 60,25 140,35 180,65 C 180,-20 110,-35 0,-10 Z" fill="#e2e8f0" />
+    <path d="M -10,-30 L 0,-20 L 10,-30 L 6,75 L 0,80 L -6,75 Z" fill="url(#goldAcc)" />
+  </g>
+
+  <!-- Graduation Cap / Toga / Obor -->
+  <g transform="translate(400, 170)">
+    <polygon points="0,-40 100,0 0,40 -100,0" fill="url(#goldAcc)" />
+    <polygon points="0,-30 80,0 0,30 -80,0" fill="#fef08a" opacity="0.4" />
+    <path d="M -45,18 L -45,55 C -45,75 45,75 45,55 L 45,18 Z" fill="#d49f2b" />
+    <!-- Tassel -->
+    <path d="M 0,0 L 85,25 L 85,60" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" />
+    <circle cx="85" cy="62" r="6" fill="#ffffff" />
+  </g>
+
+  <!-- Stars -->
+  <polygon points="210,180 215,195 230,195 218,205 222,220 210,210 198,220 202,205 190,195 205,195" fill="url(#goldAcc)" opacity="0.8" />
+  <polygon points="590,180 595,195 610,195 598,205 602,220 590,210 578,220 582,205 570,195 585,195" fill="url(#goldAcc)" opacity="0.8" />
+
+  <!-- Clean Bottom Title Card -->
+  <g transform="translate(100, 470)">
+    <rect width="600" height="85" rx="16" fill="rgba(11,35,58,0.85)" stroke="url(#goldAcc)" stroke-width="2" />
+    <text x="300" y="36" text-anchor="middle" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="20" font-weight="900" fill="#ffffff" letter-spacing="2">
+      SD NEGERI KARANG TENGAH 1
+    </text>
+    <text x="300" y="63" text-anchor="middle" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="13" font-weight="600" fill="#cbd5e1" letter-spacing="1">
+      Kecamatan Karang Tengah · Kota Tangerang · Banten
+    </text>
+  </g>
+</svg>

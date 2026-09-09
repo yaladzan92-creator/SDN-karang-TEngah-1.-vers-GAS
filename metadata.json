@@ -1,0 +1,6 @@
+{
+  "name": "SDN Karang Tengah 1",
+  "description": "Website resmi dan panel admin SD Negeri Karang Tengah 1, Kecamatan Karang Tengah, Kota Tangerang.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
